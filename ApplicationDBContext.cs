@@ -374,7 +374,9 @@ namespace WebAppCourierTrack
                 new Cliente { Id = 5, NroDocumento = "5678912", TipoDocumentoId = 1, ExtensionCIId = 5, UsuarioId = 7, TipoClienteId = 1 },
                 new Cliente { Id = 6, NroDocumento = "6789123", TipoDocumentoId = 1, ExtensionCIId = 6, UsuarioId = 8, TipoClienteId = 1 },
                 new Cliente { Id = 7, NroDocumento = "7891234", TipoDocumentoId = 1, ExtensionCIId = 7, UsuarioId = 9, TipoClienteId = 1 },
-                new Cliente { Id = 8, NroDocumento = "1020304011", TipoDocumentoId = 2, ExtensionCIId = null, UsuarioId = 10, TipoClienteId = 2 }
+                new Cliente { Id = 8, NroDocumento = "1020304011", TipoDocumentoId = 2, ExtensionCIId = null, UsuarioId = 10, TipoClienteId = 2 },
+                new Cliente { Id = 9, NroDocumento = "2040506070", TipoDocumentoId = 2, ExtensionCIId = null, UsuarioId = 11, TipoClienteId = 2 },
+                new Cliente { Id = 10, NroDocumento = "3098765432", TipoDocumentoId = 2, ExtensionCIId = null, UsuarioId = 12, TipoClienteId = 2 }
             );
 
             // ClienteNatural
@@ -423,11 +425,11 @@ namespace WebAppCourierTrack
                 new DireccionOrigen { Id = 3, Referencia = "Av. Busch, frente al mercado", UbicacionId = 3 },
                 new DireccionOrigen { Id = 4, Referencia = "Calle Comercio, al lado del banco", UbicacionId = 4 },
                 new DireccionOrigen { Id = 5, Referencia = "Zona Sur, cerca del Megacenter", UbicacionId = 5 },
-                new DireccionOrigen { Id = 6, Referencia = "Av. Ballivián, esquina semáforo", UbicacionId = 6 },
-                new DireccionOrigen { Id = 7, Referencia = "Terminal de buses, ingreso principal", UbicacionId = 7 },
-                new DireccionOrigen { Id = 8, Referencia = "Av. Camacho, edificio empresarial", UbicacionId = 8 },
-                new DireccionOrigen { Id = 9, Referencia = "Zona Miraflores, frente al estadio", UbicacionId = 9 },
-                new DireccionOrigen { Id = 10, Referencia = "Calle 21 de Calacoto, esquina farmacia", UbicacionId = 10 }
+                new DireccionOrigen { Id = 6, Referencia = "Av. Ballivián, esquina semáforo", UbicacionId = 1 },
+                new DireccionOrigen { Id = 7, Referencia = "Terminal de buses, ingreso principal", UbicacionId = 2 },
+                new DireccionOrigen { Id = 8, Referencia = "Av. Camacho, edificio empresarial", UbicacionId = 3 },
+                new DireccionOrigen { Id = 9, Referencia = "Zona Miraflores, frente al estadio", UbicacionId = 4 },
+                new DireccionOrigen { Id = 10, Referencia = "Calle 21 de Calacoto, esquina farmacia", UbicacionId = 5 }
             );
 
             // DireccionDestino
@@ -460,7 +462,23 @@ namespace WebAppCourierTrack
                  new Calificacion { Id = 5, Comentario = "Servicio aceptable", Puntuacion = 4, Fecha = new DateTime(2025, 1, 20, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 7 },
                  new Calificacion { Id = 6, Comentario = "El paquete llegó en buen estado", Puntuacion = 5, Fecha = new DateTime(2025, 1, 22, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 8 },
                  new Calificacion { Id = 7, Comentario = "Faltó comunicación durante la entrega", Puntuacion = 3, Fecha = new DateTime(2025, 1, 24, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 9 },
-                 new Calificacion { Id = 8, Comentario = "Muy recomendado", Puntuacion = 5, Fecha = new DateTime(2025, 1, 26, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 10 }
+                 new Calificacion { Id = 8, Comentario = "Muy recomendado", Puntuacion = 5, Fecha = new DateTime(2025, 1, 26, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 10 },
+                 new Calificacion
+                 {
+                     Id = 9,
+                     Comentario = "Buen servicio empresarial",
+                     Puntuacion = 4,
+                     Fecha = new DateTime(2025, 1, 28, 0, 0, 0, DateTimeKind.Utc),
+                     UsuarioId = 11
+                 },
+new Calificacion
+{
+    Id = 10,
+    Comentario = "Entrega satisfactoria",
+    Puntuacion = 4,
+    Fecha = new DateTime(2025, 1, 30, 0, 0, 0, DateTimeKind.Utc),
+    UsuarioId = 12
+}
             );
 
             // DetallePedido (configuración añadida)
@@ -474,6 +492,79 @@ namespace WebAppCourierTrack
                 .WithMany(d => d.DetallesPedido)
                 .HasForeignKey(dp => dp.DireccionDestinoId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<DetallePedido>().HasData(
+                new DetallePedido
+                {
+                    Id = 1,
+                    Descripcion = "Documentos importantes",
+                    DireccionOrigenId = 1,
+                    DireccionDestinoId = 1
+                },
+                new DetallePedido
+                {
+                    Id = 2,
+                    Descripcion = "Caja mediana",
+                    DireccionOrigenId = 2,
+                    DireccionDestinoId = 2
+                },
+                new DetallePedido
+                {
+                    Id = 3,
+                    Descripcion = "Paquete pequeño frágil",
+                    DireccionOrigenId = 3,
+                    DireccionDestinoId = 3
+                },
+                new DetallePedido
+                {
+                    Id = 4,
+                    Descripcion = "Electrodoméstico",
+                    DireccionOrigenId = 4,
+                    DireccionDestinoId = 4
+                },
+                new DetallePedido
+                {
+                    Id = 5,
+                    Descripcion = "Equipos de oficina",
+                    DireccionOrigenId = 5,
+                    DireccionDestinoId = 5
+                },
+                new DetallePedido
+                {
+                    Id = 6,
+                    Descripcion = "Repuestos mecánicos",
+                    DireccionOrigenId = 6,
+                    DireccionDestinoId = 1
+                },
+                new DetallePedido
+                {
+                    Id = 7,
+                    Descripcion = "Medicamentos",
+                    DireccionOrigenId = 7,
+                    DireccionDestinoId = 2
+                },
+                new DetallePedido
+                {
+                    Id = 8,
+                    Descripcion = "Muebles pequeños",
+                    DireccionOrigenId = 8,
+                    DireccionDestinoId = 3
+                },
+                new DetallePedido
+                {
+                    Id = 9,
+                    Descripcion = "Papelería",
+                    DireccionOrigenId = 9,
+                    DireccionDestinoId = 4
+                },
+                new DetallePedido
+                {
+                    Id = 10,
+                    Descripcion = "Material electrónico",
+                    DireccionOrigenId = 10,
+                    DireccionDestinoId = 5
+                }
+            );
+
 
             // Pedido
             modelBuilder.Entity<Pedido>()

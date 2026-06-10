@@ -12,8 +12,8 @@ using WebAppCourierTrack;
 namespace WebAppCourierTrack.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20260610111101_prueba5")]
-    partial class prueba5
+    [Migration("20260610114950_prueba11todoNuevabd")]
+    partial class prueba11todoNuevabd
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -207,6 +207,22 @@ namespace WebAppCourierTrack.Migrations
                             Fecha = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
                             Puntuacion = 5,
                             UsuarioId = 10
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Comentario = "Buen servicio empresarial",
+                            Fecha = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Puntuacion = 4,
+                            UsuarioId = 11
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Comentario = "Entrega satisfactoria",
+                            Fecha = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Puntuacion = 4,
+                            UsuarioId = 12
                         });
                 });
 
@@ -319,6 +335,22 @@ namespace WebAppCourierTrack.Migrations
                             TipoClienteId = 2,
                             TipoDocumentoId = 2,
                             UsuarioId = 10
+                        },
+                        new
+                        {
+                            Id = 9,
+                            NroDocumento = "2040506070",
+                            TipoClienteId = 2,
+                            TipoDocumentoId = 2,
+                            UsuarioId = 11
+                        },
+                        new
+                        {
+                            Id = 10,
+                            NroDocumento = "3098765432",
+                            TipoClienteId = 2,
+                            TipoDocumentoId = 2,
+                            UsuarioId = 12
                         });
                 });
 
@@ -588,6 +620,88 @@ namespace WebAppCourierTrack.Migrations
                     b.HasIndex("DireccionOrigenId");
 
                     b.ToTable("DetallePedidos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Descripcion = "Documentos importantes",
+                            DireccionDestinoId = 1,
+                            DireccionOrigenId = 1,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Descripcion = "Caja mediana",
+                            DireccionDestinoId = 2,
+                            DireccionOrigenId = 2,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Descripcion = "Paquete pequeño frágil",
+                            DireccionDestinoId = 3,
+                            DireccionOrigenId = 3,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Descripcion = "Electrodoméstico",
+                            DireccionDestinoId = 4,
+                            DireccionOrigenId = 4,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Descripcion = "Equipos de oficina",
+                            DireccionDestinoId = 5,
+                            DireccionOrigenId = 5,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Descripcion = "Repuestos mecánicos",
+                            DireccionDestinoId = 1,
+                            DireccionOrigenId = 6,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Descripcion = "Medicamentos",
+                            DireccionDestinoId = 2,
+                            DireccionOrigenId = 7,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Descripcion = "Muebles pequeños",
+                            DireccionDestinoId = 3,
+                            DireccionOrigenId = 8,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Descripcion = "Papelería",
+                            DireccionDestinoId = 4,
+                            DireccionOrigenId = 9,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Descripcion = "Material electrónico",
+                            DireccionDestinoId = 5,
+                            DireccionOrigenId = 10,
+                            Fecha = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.DireccionDestino", b =>
@@ -702,31 +816,31 @@ namespace WebAppCourierTrack.Migrations
                         {
                             Id = 6,
                             Referencia = "Av. Ballivián, esquina semáforo",
-                            UbicacionId = 6
+                            UbicacionId = 1
                         },
                         new
                         {
                             Id = 7,
                             Referencia = "Terminal de buses, ingreso principal",
-                            UbicacionId = 7
+                            UbicacionId = 2
                         },
                         new
                         {
                             Id = 8,
                             Referencia = "Av. Camacho, edificio empresarial",
-                            UbicacionId = 8
+                            UbicacionId = 3
                         },
                         new
                         {
                             Id = 9,
                             Referencia = "Zona Miraflores, frente al estadio",
-                            UbicacionId = 9
+                            UbicacionId = 4
                         },
                         new
                         {
                             Id = 10,
                             Referencia = "Calle 21 de Calacoto, esquina farmacia",
-                            UbicacionId = 10
+                            UbicacionId = 5
                         });
                 });
 
@@ -2013,6 +2127,28 @@ namespace WebAppCourierTrack.Migrations
                             Password = "User123*",
                             RolId = 3,
                             Telefono = "70234567"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            ApMat = "SRL",
+                            ApPat = "Uno",
+                            Correo = "empresa1@courier.com",
+                            Nombre = "Empresa",
+                            Password = "User123*",
+                            RolId = 3,
+                            Telefono = "70111111"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            ApMat = "SA",
+                            ApPat = "Dos",
+                            Correo = "empresa2@courier.com",
+                            Nombre = "Empresa",
+                            Password = "User123*",
+                            RolId = 3,
+                            Telefono = "70222222"
                         });
                 });
 
