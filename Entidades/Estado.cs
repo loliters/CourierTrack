@@ -12,5 +12,8 @@ namespace WebAppCourierTrack.Entidades
         [RegularExpression(@"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$",
             ErrorMessage = "Solo se permiten letras")]
         public string Nombre { get; set; }
+
+        //nvegacion N:M, adición para el uso de tabla pivote
+        public List<EstadoPedido> EstadosPedidos { get; set; }
     }
 }

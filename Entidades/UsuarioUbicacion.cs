@@ -13,5 +13,7 @@ namespace WebAppCourierTrack.Entidades
         public int UbicacionId { get; set; }
         //Propeidades de navegación
         public Ubicacion Ubicacion { get; set; } 
+
+        public Usuario Usuario { get; set; }
     }
 }
