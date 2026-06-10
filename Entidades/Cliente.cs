@@ -35,5 +35,8 @@ namespace WebAppCourierTrack.Entidades
         public ClienteNatural ClienteNatural { get; set; }
         //relacion 1:1 con clientejuridico
         public ClienteJuridico ClienteJuridico { get; set; }
+
+        // Relación con pedidos
+        public List<Pedido> Pedidos { get; set; }
     }
 }

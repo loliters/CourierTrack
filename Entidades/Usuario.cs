@@ -50,7 +50,9 @@ namespace WebAppCourierTrack.Entidades
         // Relación con Cliente
         // especialización
         public Cliente Cliente { get; set; }
-        //public Conductor Conductor { get; set; }
-        
+        public Conductor Conductor { get; set; }
+
+        //usuario calificacion  1:N 
+        public List<Calificacion> Calificaciones { get; set; }
     }
 }

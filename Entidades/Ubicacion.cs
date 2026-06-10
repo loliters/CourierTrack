@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.Contracts;
 
 namespace WebAppCourierTrack.Entidades
 {
@@ -17,5 +18,11 @@ namespace WebAppCourierTrack.Entidades
         [Column(TypeName = "decimal(9,6)")]//evita que EF use por defecto
         [Range(-180, 180, ErrorMessage = "La longitud debe estar entre -180 y 180")]
         public decimal Longitud { get; set; }
+
+        //relacion 1:N direccion origen
+        public List<DireccionOrigen> DireccionesOrigenes { get; set; }
+
+        //relacion 1:N destino
+        public List<DireccionDestino> DireccionesDestinos { get; set; }
     }
 }

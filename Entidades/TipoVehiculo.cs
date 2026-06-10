@@ -9,6 +9,10 @@ namespace WebAppCourierTrack.Entidades
 
         [Required]
         [MaxLength(30, ErrorMessage = "El nombre no puede superar los 30 caracteres")]
-        public string Nombre { get; set; } 
+        public string Nombre { get; set; }
+
+       
+        // Relación con pedidos
+        public List<Pedido> Pedidos { get; set; }
     }
 }

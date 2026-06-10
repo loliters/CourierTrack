@@ -2,7 +2,7 @@
 
 namespace WebAppCourierTrack.Entidades
 {
-    public class DireccionOrigen
+    public class DireccionDestino
     {
         [Key]
         public int Id { get; set; }
