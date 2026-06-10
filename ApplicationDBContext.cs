@@ -214,51 +214,51 @@ namespace WebAppCourierTrack
 
             //Dependientes
 
-            //tabla Conductor
+            //tabla 
             modelBuilder.Entity<Conductor>().HasData(
-                new Conductor { Id = 1, NroLicencia = "8765432SC", IdUsuario = 3, IdTipoLicencia = 3 },
-                new Conductor { Id = 2, NroLicencia = "5432109CB", IdUsuario = 5, IdTipoLicencia = 2 }
+                new Conductor { Id = 1, NroLicencia = "8765432SC", UsuarioId = 3, TipoLicenciaId = 3 },
+                new Conductor { Id = 2, NroLicencia = "5432109CB", UsuarioId = 5, TipoLicenciaId = 2 }
             );
             // Un usuario solo puede ser un conductor
             // Conductor con TipoLicencia
             modelBuilder.Entity<Conductor>()
                 .HasIndex(c => c.NroLicencia).IsUnique();
             modelBuilder.Entity<Conductor>()
-                .HasIndex(c => c.IdUsuario).IsUnique();
+                .HasIndex(c => c.UsuarioId).IsUnique();
             modelBuilder.Entity<Conductor>()
                 .HasOne(c => c.TipoLicencia)
                 .WithMany()
-                .HasForeignKey(c => c.IdTipoLicencia)
+                .HasForeignKey(c => c.TipoLicenciaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //tabla Modelo
             modelBuilder.Entity<Modelo>().HasData(
-                new Modelo { Id = 1, Nombre = "Corolla", IdMarca = 1, IdTipoVehiculo = 2 },
-                new Modelo { Id = 2, Nombre = "F-150", IdMarca = 2, IdTipoVehiculo = 4 },
-                new Modelo { Id = 3, Nombre = "Sprinter", IdMarca = 4, IdTipoVehiculo = 3 },
-                new Modelo { Id = 4, Nombre = "Civic", IdMarca = 1, IdTipoVehiculo = 2 },
-                new Modelo { Id = 5, Nombre = "Carga 5000", IdMarca = 5, IdTipoVehiculo = 5 }
+                new Modelo { Id = 1, Nombre = "Corolla", MarcaId = 1, TipoVehiculoId = 2 },
+                new Modelo { Id = 2, Nombre = "F-150", MarcaId = 2, TipoVehiculoId = 4 },
+                new Modelo { Id = 3, Nombre = "Sprinter", MarcaId = 4, TipoVehiculoId = 3 },
+                new Modelo { Id = 4, Nombre = "Civic", MarcaId = 1, TipoVehiculoId = 2 },
+                new Modelo { Id = 5, Nombre = "Carga 5000", MarcaId = 5, TipoVehiculoId = 5 }
             );
             // No puede haber dos modelos con mismo nombre y mar
             // Modelo con Marca
             // Modelo con TipoVehiculo
             modelBuilder.Entity<Modelo>()
-                .HasIndex(m => new { m.Nombre, m.IdMarca }).IsUnique();
+                .HasIndex(m => new { m.Nombre, m.MarcaId }).IsUnique();
             modelBuilder.Entity<Modelo>()
                 .HasOne(m => m.Marca)
                 .WithMany()
-                .HasForeignKey(m => m.IdMarca)
+                .HasForeignKey(m => m.MarcaId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Modelo>()
                 .HasOne(m => m.TipoVehiculo)
                 .WithMany()
-                .HasForeignKey(m => m.IdTipoVehiculo)
+                .HasForeignKey(m => m.TipoVehiculoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //tabla Vehiculo
             modelBuilder.Entity<Vehiculo>().HasData(
-                new Vehiculo { Id = 1, Placa = "1852-PHD", ModeloId = 1, ColorId = 1, AnioVehiculoId = 6, IdConductor = 1 },
-                new Vehiculo { Id = 2, Placa = "4511-GAD", ModeloId = 2, ColorId = 4, AnioVehiculoId = 8, IdConductor = 2 }
+                new Vehiculo { Id = 1, Placa = "1852-PHD", ModeloId = 1, ColorId = 1, AnioVehiculoId = 6, ConductorId = 1 },
+                new Vehiculo { Id = 2, Placa = "4511-GAD", ModeloId = 2, ColorId = 4, AnioVehiculoId = 8, ConductorId = 2 }
             );
 
             // Vehiculo con Modelo
@@ -285,26 +285,26 @@ namespace WebAppCourierTrack
             modelBuilder.Entity<Vehiculo>()
                 .HasOne(v => v.Conductor)                          
                 .WithMany()
-                .HasForeignKey(v => v.IdConductor)
+                .HasForeignKey(v => v.ConductorId)
                 .OnDelete(DeleteBehavior.Restrict);                
 
 
             //tabla Tarifa
             modelBuilder.Entity<Tarifa>().HasData(
-                new Tarifa { Id = 1, PrecioKg = 1.50m, PrecioKm = 2.00m, IdTipoVehiculo = 1 },
-                new Tarifa { Id = 2, PrecioKg = 2.00m, PrecioKm = 2.50m, IdTipoVehiculo = 2 },
-                new Tarifa { Id = 3, PrecioKg = 2.50m, PrecioKm = 3.00m, IdTipoVehiculo = 3 },
-                new Tarifa { Id = 4, PrecioKg = 3.00m, PrecioKm = 4.00m, IdTipoVehiculo = 4 },
-                new Tarifa { Id = 5, PrecioKg = 4.00m, PrecioKm = 5.00m, IdTipoVehiculo = 5 }
+                new Tarifa { Id = 1, PrecioKg = 1.50m, PrecioKm = 2.00m, TipoVehiculoId = 1 },
+                new Tarifa { Id = 2, PrecioKg = 2.00m, PrecioKm = 2.50m, TipoVehiculoId = 2 },
+                new Tarifa { Id = 3, PrecioKg = 2.50m, PrecioKm = 3.00m, TipoVehiculoId = 3 },
+                new Tarifa { Id = 4, PrecioKg = 3.00m, PrecioKm = 4.00m, TipoVehiculoId = 4 },
+                new Tarifa { Id = 5, PrecioKg = 4.00m, PrecioKm = 5.00m, TipoVehiculoId = 5 }
             );
             // Una tarifa por tipo de vehículo
             // Tarifa con TipoVehiculo
             modelBuilder.Entity<Tarifa>()
-                .HasIndex(t => t.IdTipoVehiculo).IsUnique();       
+                .HasIndex(t => t.TipoVehiculoId).IsUnique();       
                         modelBuilder.Entity<Tarifa>()
                             .HasOne(t => t.TipoVehiculo)                       
                             .WithMany()
-                            .HasForeignKey(t => t.IdTipoVehiculo)
+                            .HasForeignKey(t => t.TipoVehiculoId)
                             .OnDelete(DeleteBehavior.Restrict);
             //relaciones
             //tabla Pago
@@ -318,46 +318,46 @@ namespace WebAppCourierTrack
             modelBuilder.Entity<Seguimiento>()
             .HasOne(s => s.Conductor)
             .WithMany()
-            .HasForeignKey(s => s.IdConductor)
+            .HasForeignKey(s => s.ConductorId)
             .OnDelete(DeleteBehavior.Restrict);
                     modelBuilder.Entity<Seguimiento>()
                         .HasOne(s => s.Vehiculo)
                         .WithMany()
-                        .HasForeignKey(s => s.IdVehiculo)
+                        .HasForeignKey(s => s.VehiculoId)
                         .OnDelete(DeleteBehavior.SetNull); 
                     modelBuilder.Entity<Seguimiento>()
                         .HasOne(s => s.Ubicacion)
                         .WithMany()
-                        .HasForeignKey(s => s.IdUbicacion)
+                        .HasForeignKey(s => s.UbicacionId)
                         .OnDelete(DeleteBehavior.Restrict);
 
             // tabla HistorialUbicacion
             modelBuilder.Entity<HistorialUbicacion>()
                 .HasOne(h => h.Ubicacion)
                 .WithMany()
-                .HasForeignKey(h => h.IdUbicacion)
+                .HasForeignKey(h => h.UbicacionId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<HistorialUbicacion>()
                 .HasOne(h => h.Seguimiento)
                 .WithMany()
-                .HasForeignKey(h => h.IdSeguimiento)
+                .HasForeignKey(h => h.SeguimientoId)
                 .OnDelete(DeleteBehavior.Cascade);
             //PIVOTES
 
             //tabla UsuarioUbicacion
             modelBuilder.Entity<UsuarioUbicacion>().HasData(
-                new UsuarioUbicacion { Id = 1, EsPrincipal = true, IdUsuario = 1, IdUbicacion = 1 },
-                new UsuarioUbicacion { Id = 2, EsPrincipal = true, IdUsuario = 2, IdUbicacion = 1 },
-                new UsuarioUbicacion { Id = 3, EsPrincipal = false, IdUsuario = 2, IdUbicacion = 2 }
+                new UsuarioUbicacion { Id = 1, EsPrincipal = true, UsuarioId = 1, UbicacionId = 1 },
+                new UsuarioUbicacion { Id = 2, EsPrincipal = true, UsuarioId = 2, UbicacionId = 1 },
+                new UsuarioUbicacion { Id = 3, EsPrincipal = false, UsuarioId = 2, UbicacionId = 2 }
             );
             // Un usuario sólo una ubicación principal
             modelBuilder.Entity<UsuarioUbicacion>()
-                .HasIndex(uu => new { uu.IdUsuario, uu.EsPrincipal })
+                .HasIndex(uu => new { uu.UsuarioId, uu.EsPrincipal })
                 .IsUnique();   
             modelBuilder.Entity<UsuarioUbicacion>()
                 .HasOne(uu => uu.Ubicacion)
                 .WithMany()
-                .HasForeignKey(uu => uu.IdUbicacion)
+                .HasForeignKey(uu => uu.UbicacionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //Precisiones decimales
