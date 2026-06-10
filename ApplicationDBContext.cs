@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.Entidades;
 
-
-using Microsoft.EntityFrameworkCore;
-using WebAppCourierTrack.Entidades;
 namespace WebAppCourierTrack
 {
     public class ApplicationDBContext : DbContext
@@ -13,6 +10,14 @@ namespace WebAppCourierTrack
 
         }
         //independientes
+        public DbSet<Rol> Roles { get; set; }
+        public DbSet<Genero> Generos { get; set; }
+        public DbSet<TipoCliente> TipoClientes { get; set; }
+        public DbSet<TipoDocumento> TipoDocumentos { get; set; }
+        public DbSet<ExtensionCI> ExtensionCI { get; set; }
+        public DbSet<Estado> Estados { get; set; }
+        public DbSet<EstadoPago> EstadoPagos { get; set; }
+        //
         public DbSet<TipoLicencia> TipoLicencias { get; set; }
         public DbSet<Marca> Marcas { get; set; }
         public DbSet<TipoVehiculo> TipoVehiculos { get; set; }
@@ -32,18 +37,8 @@ namespace WebAppCourierTrack
         public DbSet<Notificacion> Notificaciones { get; set; }
         //pivotes
         public DbSet<UsuarioUbicacion> UsuariosUbicaciones { get; set; }
-        public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options)
-        {
-
-        }
-        //tablas
-        public DbSet<Rol> Roles { get; set; }
-        public DbSet<Genero> Generos { get; set; }
-        public DbSet<TipoCliente> TipoClientes { get; set; }
-        public DbSet<TipoDocumento> TipoDocumentos { get; set; }
-        public DbSet<ExtensionCI> ExtensionCI { get; set; }
-        public DbSet<Estado> Estados { get; set; }
-        public DbSet<EstadoPago> EstadoPagos { get; set; }
+ 
+       
 
         //DATA SEEDING
         protected override void OnModelCreating(ModelBuilder modelBuilder)
