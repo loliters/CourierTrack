@@ -9,8 +9,8 @@ namespace WebAppCourierTrack.Entidades
 
         public bool EsPrincipal { get; set; }
 
-        public int UsuarioId { get; set; }
-        public int UbicacionId { get; set; }
+        public int IdUsuario { get; set; }
+        public int IdUbicacion { get; set; }
         //Propeidades de navegación
         public Ubicacion Ubicacion { get; set; } 
 
