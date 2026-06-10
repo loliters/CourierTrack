@@ -389,11 +389,11 @@ namespace WebAppCourierTrack
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ClienteNatural>().HasData(
-                new ClienteNatural { Id = 1, FechaNac = new DateTime(1995, 3, 15), GeneroId = 1, ClienteId = 1 },
-                new ClienteNatural { Id = 2, FechaNac = new DateTime(1998, 7, 22), GeneroId = 2, ClienteId = 2 },
-                new ClienteNatural { Id = 3, FechaNac = new DateTime(1992, 11, 8), GeneroId = 1, ClienteId = 3 },
-                new ClienteNatural { Id = 4, FechaNac = new DateTime(2000, 1, 30), GeneroId = 2, ClienteId = 4 },
-                new ClienteNatural { Id = 5, FechaNac = new DateTime(1997, 9, 14), GeneroId = 1, ClienteId = 5 }
+                new ClienteNatural { Id = 1, FechaNac = new DateTime(1995, 3, 15, 0, 0, 0, DateTimeKind.Utc), GeneroId = 1, ClienteId = 1 },
+                new ClienteNatural { Id = 2, FechaNac = new DateTime(1998, 7, 22, 0, 0, 0, DateTimeKind.Utc), GeneroId = 2, ClienteId = 2 },
+                new ClienteNatural { Id = 3, FechaNac = new DateTime(1992, 11, 8, 0, 0, 0, DateTimeKind.Utc), GeneroId = 1, ClienteId = 3 },
+                new ClienteNatural { Id = 4, FechaNac = new DateTime(2000, 1, 30, 0, 0, 0, DateTimeKind.Utc), GeneroId = 2, ClienteId = 4 },
+                new ClienteNatural { Id = 5, FechaNac = new DateTime(1997, 9, 14, 0, 0, 0, DateTimeKind.Utc), GeneroId = 1, ClienteId = 5 }
             );
 
             // ClienteJuridico
@@ -452,16 +452,16 @@ namespace WebAppCourierTrack
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Calificacion>().HasData(
-                new Calificacion { Id = 1, Comentario = "Excelente servicio", Puntuacion = 5, Fecha = new DateTime(2025, 1, 10), UsuarioId = 3 },
-                new Calificacion { Id = 2, Comentario = "Entrega rápida y segura", Puntuacion = 4, Fecha = new DateTime(2025, 1, 12), UsuarioId = 4 },
-                new Calificacion { Id = 3, Comentario = "Buen trato del conductor", Puntuacion = 5, Fecha = new DateTime(2025, 1, 15), UsuarioId = 5 },
-                new Calificacion { Id = 4, Comentario = "El pedido llegó tarde", Puntuacion = 3, Fecha = new DateTime(2025, 1, 18), UsuarioId = 6 },
-                new Calificacion { Id = 5, Comentario = "Servicio aceptable", Puntuacion = 4, Fecha = new DateTime(2025, 1, 20), UsuarioId = 7 },
-                new Calificacion { Id = 6, Comentario = "El paquete llegó en buen estado", Puntuacion = 5, Fecha = new DateTime(2025, 1, 22), UsuarioId = 8 },
-                new Calificacion { Id = 7, Comentario = "Faltó comunicación durante la entrega", Puntuacion = 3, Fecha = new DateTime(2025, 1, 24), UsuarioId = 9 },
-                new Calificacion { Id = 8, Comentario = "Muy recomendado", Puntuacion = 5, Fecha = new DateTime(2025, 1, 26), UsuarioId = 10 },
-                new Calificacion { Id = 9, Comentario = "Buen servicio empresarial", Puntuacion = 4, Fecha = new DateTime(2025, 1, 28), UsuarioId = 11 },
-                new Calificacion { Id = 10, Comentario = "Entrega satisfactoria", Puntuacion = 4, Fecha = new DateTime(2025, 1, 30), UsuarioId = 12 }
+                 new Calificacion { Id = 1, Comentario = "Excelente servicio", Puntuacion = 5, Fecha = new DateTime(2025, 1, 10, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 3 },
+                 new Calificacion { Id = 2, Comentario = "Entrega rápida y segura", Puntuacion = 4, Fecha = new DateTime(2025, 1, 12, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 4 },
+                 new Calificacion { Id = 3, Comentario = "Buen trato del conductor", Puntuacion = 5, Fecha = new DateTime(2025, 1, 15, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 5 },
+                 new Calificacion { Id = 4, Comentario = "El pedido llegó tarde", Puntuacion = 3, Fecha = new DateTime(2025, 1, 18, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 6 },
+                 new Calificacion { Id = 5, Comentario = "Servicio aceptable", Puntuacion = 4, Fecha = new DateTime(2025, 1, 20, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 7 },
+                 new Calificacion { Id = 6, Comentario = "El paquete llegó en buen estado", Puntuacion = 5, Fecha = new DateTime(2025, 1, 22, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 8 },
+                 new Calificacion { Id = 7, Comentario = "Faltó comunicación durante la entrega", Puntuacion = 3, Fecha = new DateTime(2025, 1, 24, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 9 },
+                 new Calificacion { Id = 8, Comentario = "Muy recomendado", Puntuacion = 5, Fecha = new DateTime(2025, 1, 26, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 10 },
+                 new Calificacion { Id = 9, Comentario = "Buen servicio empresarial", Puntuacion = 4, Fecha = new DateTime(2025, 1, 28, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 11 },
+                 new Calificacion { Id = 10, Comentario = "Entrega satisfactoria", Puntuacion = 4, Fecha = new DateTime(2025, 1, 30, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 12 }
             );
 
             // DetallePedido (configuración añadida)
@@ -519,16 +519,16 @@ namespace WebAppCourierTrack
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<EstadoPedido>().HasData(
-                new EstadoPedido { Id = 1, HoraCambio = new DateTime(2025, 1, 10, 8, 0, 0), PedidoId = 1, EstadoId = 1 },
-                new EstadoPedido { Id = 2, HoraCambio = new DateTime(2025, 1, 10, 10, 30, 0), PedidoId = 1, EstadoId = 2 },
-                new EstadoPedido { Id = 3, HoraCambio = new DateTime(2025, 1, 10, 13, 15, 0), PedidoId = 1, EstadoId = 3 },
-                new EstadoPedido { Id = 4, HoraCambio = new DateTime(2025, 1, 12, 9, 0, 0), PedidoId = 2, EstadoId = 1 },
-                new EstadoPedido { Id = 5, HoraCambio = new DateTime(2025, 1, 12, 12, 20, 0), PedidoId = 2, EstadoId = 2 },
-                new EstadoPedido { Id = 6, HoraCambio = new DateTime(2025, 1, 12, 15, 45, 0), PedidoId = 2, EstadoId = 3 },
-                new EstadoPedido { Id = 7, HoraCambio = new DateTime(2025, 1, 15, 8, 45, 0), PedidoId = 3, EstadoId = 1 },
-                new EstadoPedido { Id = 8, HoraCambio = new DateTime(2025, 1, 15, 11, 15, 0), PedidoId = 3, EstadoId = 4 },
-                new EstadoPedido { Id = 9, HoraCambio = new DateTime(2025, 1, 18, 7, 50, 0), PedidoId = 4, EstadoId = 1 },
-                new EstadoPedido { Id = 10, HoraCambio = new DateTime(2025, 1, 18, 11, 40, 0), PedidoId = 4, EstadoId = 2 }
+                new EstadoPedido { Id = 1, HoraCambio = new DateTime(2025, 1, 10, 8, 0, 0, DateTimeKind.Utc), PedidoId = 1, EstadoId = 1 },
+                new EstadoPedido { Id = 2, HoraCambio = new DateTime(2025, 1, 10, 10, 30, 0, DateTimeKind.Utc), PedidoId = 1, EstadoId = 2 },
+                new EstadoPedido { Id = 3, HoraCambio = new DateTime(2025, 1, 10, 13, 15, 0, DateTimeKind.Utc), PedidoId = 1, EstadoId = 3 },
+                new EstadoPedido { Id = 4, HoraCambio = new DateTime(2025, 1, 12, 9, 0, 0, DateTimeKind.Utc), PedidoId = 2, EstadoId = 1 },
+                new EstadoPedido { Id = 5, HoraCambio = new DateTime(2025, 1, 12, 12, 20, 0, DateTimeKind.Utc), PedidoId = 2, EstadoId = 2 },
+                new EstadoPedido { Id = 6, HoraCambio = new DateTime(2025, 1, 12, 15, 45, 0, DateTimeKind.Utc), PedidoId = 2, EstadoId = 3 },
+                new EstadoPedido { Id = 7, HoraCambio = new DateTime(2025, 1, 15, 8, 45, 0, DateTimeKind.Utc), PedidoId = 3, EstadoId = 1 },
+                new EstadoPedido { Id = 8, HoraCambio = new DateTime(2025, 1, 15, 11, 15, 0, DateTimeKind.Utc), PedidoId = 3, EstadoId = 4 },
+                new EstadoPedido { Id = 9, HoraCambio = new DateTime(2025, 1, 18, 7, 50, 0, DateTimeKind.Utc), PedidoId = 4, EstadoId = 1 },
+                new EstadoPedido { Id = 10, HoraCambio = new DateTime(2025, 1, 18, 11, 40, 0, DateTimeKind.Utc), PedidoId = 4, EstadoId = 2 }
             );
 
             // PIVOTES 
