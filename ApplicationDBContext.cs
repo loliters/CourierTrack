@@ -133,9 +133,10 @@ namespace WebAppCourierTrack
                 new TipoLicencia { Id = 2, Categoria = "P" },
                 new TipoLicencia { Id = 3, Categoria = "C" }
             );
-            modelBuilder.Entity<TipoLicencia>().HasIndex(tl => tl.Categoria).IsUnique();
             modelBuilder.Entity<TipoLicencia>()
-                .ToTable(t => t.HasCheckConstraint("CK_TipoLicencia_categoria", "Categoria IN ('M','P','C')"));
+    .ToTable(t => t.HasCheckConstraint(
+        "CK_TipoLicencia_categoria",
+        "\"Categoria\" IN ('M','P','C')"));
 
             // tabla Marca
             modelBuilder.Entity<Marca>().HasData(
