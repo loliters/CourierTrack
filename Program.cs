@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 
 namespace WebAppCourierTrack
 {
@@ -6,6 +8,8 @@ namespace WebAppCourierTrack
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            
+
 
             // Add services to the container.
 
@@ -13,6 +17,11 @@ namespace WebAppCourierTrack
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            //configuracion del dbcontext para postgres
+            builder.Services.AddDbContext<ApplicationDBContext>(
+    opciones => opciones.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+            //
 
             var app = builder.Build();
 

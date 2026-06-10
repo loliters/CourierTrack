@@ -1,6 +1,8 @@
-﻿namespace WebAppCourierTrack
+﻿
+using Microsoft.EntityFrameworkCore;
+namespace WebAppCourierTrack
 {
-    public class ApplicationDBContext
+    public class ApplicationDBContext : DbContext
     {
     }
 }
