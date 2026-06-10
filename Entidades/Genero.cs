@@ -18,5 +18,8 @@ namespace WebAppCourierTrack.Entidades
             get => nombre;
             set => nombre = value?.Trim().ToUpper();
         }
+
+        // Relación con ClienteNatural
+        public List<ClienteNatural> ClientesNatural { get; set; }
     }
 }
