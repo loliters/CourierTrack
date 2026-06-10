@@ -339,7 +339,9 @@ namespace WebAppCourierTrack
                 new Usuario { Id = 7, Nombre = "Miguel", ApPat = "Ramos", ApMat = "Suarez", Correo = "miguel@courier.com", Telefono = "77891234", Password = "User123*", RolId = 3 },
                 new Usuario { Id = 8, Nombre = "Paola", ApPat = "Vargas", ApMat = "Castro", Correo = "paola@courier.com", Telefono = "78912345", Password = "User123*", RolId = 3 },
                 new Usuario { Id = 9, Nombre = "Fernando", ApPat = "Salazar", ApMat = "Quispe", Correo = "fernando@courier.com", Telefono = "79123456", Password = "User123*", RolId = 3 },
-                new Usuario { Id = 10, Nombre = "Valeria", ApPat = "Mendez", ApMat = "Cruz", Correo = "valeria@courier.com", Telefono = "70234567", Password = "User123*", RolId = 3 }
+                new Usuario { Id = 10, Nombre = "Valeria", ApPat = "Mendez", ApMat = "Cruz", Correo = "valeria@courier.com", Telefono = "70234567", Password = "User123*", RolId = 3 },
+                new Usuario { Id = 11, Nombre = "Empresa", ApPat = "Uno", ApMat = "SRL", Correo = "empresa1@courier.com", Telefono = "70111111", Password = "User123*", RolId = 3 },
+                new Usuario { Id = 12, Nombre = "Empresa", ApPat = "Dos", ApMat = "SA", Correo = "empresa2@courier.com", Telefono = "70222222", Password = "User123*", RolId = 3 }
             );
 
             // Cliente (base)
