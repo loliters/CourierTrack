@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebAppCourierTrack;
@@ -11,9 +12,11 @@ using WebAppCourierTrack;
 namespace WebAppCourierTrack.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260610190442_AparicionNotificacion")]
+    partial class AparicionNotificacion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -625,7 +628,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Documentos importantes",
                             DireccionDestinoId = 1,
                             DireccionOrigenId = 1,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8248)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1967)
                         },
                         new
                         {
@@ -633,7 +636,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Caja mediana",
                             DireccionDestinoId = 2,
                             DireccionOrigenId = 2,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8251)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1971)
                         },
                         new
                         {
@@ -641,7 +644,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Paquete pequeño frágil",
                             DireccionDestinoId = 3,
                             DireccionOrigenId = 3,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8253)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1973)
                         },
                         new
                         {
@@ -649,7 +652,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Electrodoméstico",
                             DireccionDestinoId = 4,
                             DireccionOrigenId = 4,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8254)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1974)
                         },
                         new
                         {
@@ -657,7 +660,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Equipos de oficina",
                             DireccionDestinoId = 5,
                             DireccionOrigenId = 5,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8255)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1975)
                         },
                         new
                         {
@@ -665,7 +668,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Repuestos mecánicos",
                             DireccionDestinoId = 1,
                             DireccionOrigenId = 6,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8256)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1976)
                         },
                         new
                         {
@@ -673,7 +676,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Medicamentos",
                             DireccionDestinoId = 2,
                             DireccionOrigenId = 7,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8257)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1978)
                         },
                         new
                         {
@@ -681,7 +684,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Muebles pequeños",
                             DireccionDestinoId = 3,
                             DireccionOrigenId = 8,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8258)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1979)
                         },
                         new
                         {
@@ -689,7 +692,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Papelería",
                             DireccionDestinoId = 4,
                             DireccionOrigenId = 9,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8259)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1980)
                         },
                         new
                         {
@@ -697,7 +700,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Material electrónico",
                             DireccionDestinoId = 5,
                             DireccionOrigenId = 10,
-                            Fecha = new DateTime(2026, 6, 10, 19, 12, 47, 868, DateTimeKind.Utc).AddTicks(8260)
+                            Fecha = new DateTime(2026, 6, 10, 19, 4, 41, 628, DateTimeKind.Utc).AddTicks(1981)
                         });
                 });
 
@@ -973,78 +976,6 @@ namespace WebAppCourierTrack.Migrations
                     b.HasIndex("PedidoId");
 
                     b.ToTable("EstadosPedidos");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            EstadoId = 4,
-                            HoraCambio = new DateTime(2025, 1, 10, 8, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            EstadoId = 3,
-                            HoraCambio = new DateTime(2025, 1, 11, 9, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            EstadoId = 4,
-                            HoraCambio = new DateTime(2025, 1, 12, 10, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 3
-                        },
-                        new
-                        {
-                            Id = 4,
-                            EstadoId = 2,
-                            HoraCambio = new DateTime(2025, 1, 13, 11, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 4
-                        },
-                        new
-                        {
-                            Id = 5,
-                            EstadoId = 1,
-                            HoraCambio = new DateTime(2025, 1, 14, 12, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 5
-                        },
-                        new
-                        {
-                            Id = 6,
-                            EstadoId = 4,
-                            HoraCambio = new DateTime(2025, 1, 15, 13, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 6
-                        },
-                        new
-                        {
-                            Id = 7,
-                            EstadoId = 3,
-                            HoraCambio = new DateTime(2025, 1, 16, 14, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 7
-                        },
-                        new
-                        {
-                            Id = 8,
-                            EstadoId = 5,
-                            HoraCambio = new DateTime(2025, 1, 17, 15, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 8
-                        },
-                        new
-                        {
-                            Id = 9,
-                            EstadoId = 4,
-                            HoraCambio = new DateTime(2025, 1, 18, 16, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 9
-                        },
-                        new
-                        {
-                            Id = 10,
-                            EstadoId = 10,
-                            HoraCambio = new DateTime(2025, 1, 19, 17, 0, 0, 0, DateTimeKind.Utc),
-                            PedidoId = 10
-                        });
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.ExtensionCI", b =>
@@ -1540,7 +1471,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "No Aplica",
                             CuentaBancaria = "No Aplica",
                             EstadoPagoId = 1,
-                            Fecha = new DateTime(2026, 6, 10, 18, 22, 47, 868, DateTimeKind.Utc).AddTicks(9763),
+                            Fecha = new DateTime(2026, 6, 10, 18, 14, 41, 628, DateTimeKind.Utc).AddTicks(4374),
                             MetodoPagoId = 1,
                             Monto = 45.00m,
                             NumeroTransaccion = "No Aplica",
@@ -1552,7 +1483,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "Banco Unión",
                             CuentaBancaria = "10000045218",
                             EstadoPagoId = 1,
-                            Fecha = new DateTime(2026, 6, 10, 18, 27, 47, 868, DateTimeKind.Utc).AddTicks(9770),
+                            Fecha = new DateTime(2026, 6, 10, 18, 19, 41, 628, DateTimeKind.Utc).AddTicks(4384),
                             MetodoPagoId = 2,
                             Monto = 70.00m,
                             NumeroTransaccion = "TXN-85214",
@@ -1564,7 +1495,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "No Aplica",
                             CuentaBancaria = "No Aplica",
                             EstadoPagoId = 1,
-                            Fecha = new DateTime(2026, 6, 10, 18, 32, 47, 868, DateTimeKind.Utc).AddTicks(9772),
+                            Fecha = new DateTime(2026, 6, 10, 18, 24, 41, 628, DateTimeKind.Utc).AddTicks(4388),
                             MetodoPagoId = 1,
                             Monto = 30.00m,
                             NumeroTransaccion = "No Aplica",
@@ -1576,7 +1507,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "Banco Nacional de Bolivia",
                             CuentaBancaria = "201-514789",
                             EstadoPagoId = 1,
-                            Fecha = new DateTime(2026, 6, 10, 18, 37, 47, 868, DateTimeKind.Utc).AddTicks(9774),
+                            Fecha = new DateTime(2026, 6, 10, 18, 29, 41, 628, DateTimeKind.Utc).AddTicks(4390),
                             MetodoPagoId = 2,
                             Monto = 120.00m,
                             NumeroTransaccion = "TXN-96325",
@@ -1588,7 +1519,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "No Aplica",
                             CuentaBancaria = "No Aplica",
                             EstadoPagoId = 2,
-                            Fecha = new DateTime(2026, 6, 10, 18, 42, 47, 868, DateTimeKind.Utc).AddTicks(9776),
+                            Fecha = new DateTime(2026, 6, 10, 18, 34, 41, 628, DateTimeKind.Utc).AddTicks(4392),
                             MetodoPagoId = 1,
                             Monto = 95.00m,
                             NumeroTransaccion = "No Aplica",
@@ -1600,7 +1531,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "Banco Mercantil Santa Cruz",
                             CuentaBancaria = "402-369852",
                             EstadoPagoId = 1,
-                            Fecha = new DateTime(2026, 6, 10, 18, 47, 47, 868, DateTimeKind.Utc).AddTicks(9778),
+                            Fecha = new DateTime(2026, 6, 10, 18, 39, 41, 628, DateTimeKind.Utc).AddTicks(4394),
                             MetodoPagoId = 2,
                             Monto = 110.00m,
                             NumeroTransaccion = "TXN-14785",
@@ -1612,7 +1543,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "No Aplica",
                             CuentaBancaria = "No Aplica",
                             EstadoPagoId = 1,
-                            Fecha = new DateTime(2026, 6, 10, 18, 52, 47, 868, DateTimeKind.Utc).AddTicks(9780),
+                            Fecha = new DateTime(2026, 6, 10, 18, 44, 41, 628, DateTimeKind.Utc).AddTicks(4396),
                             MetodoPagoId = 1,
                             Monto = 22.00m,
                             NumeroTransaccion = "No Aplica",
@@ -1624,7 +1555,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "Banco de Crédito BCP",
                             CuentaBancaria = "305-784125",
                             EstadoPagoId = 3,
-                            Fecha = new DateTime(2026, 6, 10, 18, 57, 47, 868, DateTimeKind.Utc).AddTicks(9781),
+                            Fecha = new DateTime(2026, 6, 10, 18, 49, 41, 628, DateTimeKind.Utc).AddTicks(4398),
                             MetodoPagoId = 2,
                             Monto = 175.00m,
                             NumeroTransaccion = "TXN-36985",
@@ -1636,7 +1567,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "No Aplica",
                             CuentaBancaria = "No Aplica",
                             EstadoPagoId = 1,
-                            Fecha = new DateTime(2026, 6, 10, 19, 2, 47, 868, DateTimeKind.Utc).AddTicks(9783),
+                            Fecha = new DateTime(2026, 6, 10, 18, 54, 41, 628, DateTimeKind.Utc).AddTicks(4400),
                             MetodoPagoId = 1,
                             Monto = 58.00m,
                             NumeroTransaccion = "No Aplica",
@@ -1648,7 +1579,7 @@ namespace WebAppCourierTrack.Migrations
                             Banco = "Banco Económico",
                             CuentaBancaria = "501-963258",
                             EstadoPagoId = 2,
-                            Fecha = new DateTime(2026, 6, 10, 19, 7, 47, 868, DateTimeKind.Utc).AddTicks(9785),
+                            Fecha = new DateTime(2026, 6, 10, 18, 59, 41, 628, DateTimeKind.Utc).AddTicks(4403),
                             MetodoPagoId = 2,
                             Monto = 88.00m,
                             NumeroTransaccion = "TXN-25814",
@@ -2496,78 +2427,6 @@ namespace WebAppCourierTrack.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("UsuariosUbicaciones");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            EsPrincipal = true,
-                            UbicacionId = 1,
-                            UsuarioId = 3
-                        },
-                        new
-                        {
-                            Id = 2,
-                            EsPrincipal = true,
-                            UbicacionId = 2,
-                            UsuarioId = 4
-                        },
-                        new
-                        {
-                            Id = 3,
-                            EsPrincipal = true,
-                            UbicacionId = 3,
-                            UsuarioId = 5
-                        },
-                        new
-                        {
-                            Id = 4,
-                            EsPrincipal = true,
-                            UbicacionId = 4,
-                            UsuarioId = 6
-                        },
-                        new
-                        {
-                            Id = 5,
-                            EsPrincipal = true,
-                            UbicacionId = 5,
-                            UsuarioId = 7
-                        },
-                        new
-                        {
-                            Id = 6,
-                            EsPrincipal = true,
-                            UbicacionId = 1,
-                            UsuarioId = 8
-                        },
-                        new
-                        {
-                            Id = 7,
-                            EsPrincipal = true,
-                            UbicacionId = 2,
-                            UsuarioId = 9
-                        },
-                        new
-                        {
-                            Id = 8,
-                            EsPrincipal = true,
-                            UbicacionId = 3,
-                            UsuarioId = 10
-                        },
-                        new
-                        {
-                            Id = 9,
-                            EsPrincipal = true,
-                            UbicacionId = 4,
-                            UsuarioId = 11
-                        },
-                        new
-                        {
-                            Id = 10,
-                            EsPrincipal = true,
-                            UbicacionId = 5,
-                            UsuarioId = 12
-                        });
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Vehiculo", b =>
