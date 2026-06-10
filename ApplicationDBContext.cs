@@ -535,17 +535,17 @@ namespace WebAppCourierTrack
 
             // UsuarioUbicacion
             modelBuilder.Entity<UsuarioUbicacion>().HasData(
-                new UsuarioUbicacion { Id = 1, EsPrincipal = true, IdUsuario = 1, IdUbicacion = 1 },
-                new UsuarioUbicacion { Id = 2, EsPrincipal = true, IdUsuario = 2, IdUbicacion = 1 },
-                new UsuarioUbicacion { Id = 3, EsPrincipal = false, IdUsuario = 2, IdUbicacion = 2 }
+                new UsuarioUbicacion { Id = 1, EsPrincipal = true, UsuarioId = 1, UbicacionId = 1 },
+                new UsuarioUbicacion { Id = 2, EsPrincipal = true, UsuarioId = 2, UbicacionId = 1 },
+                new UsuarioUbicacion { Id = 3, EsPrincipal = false, UsuarioId = 2, UbicacionId = 2 }
             );
             modelBuilder.Entity<UsuarioUbicacion>()
-                .HasIndex(uu => new { uu.IdUsuario, uu.EsPrincipal })
+                .HasIndex(uu => new { uu.UsuarioId, uu.EsPrincipal })
                 .IsUnique();
             modelBuilder.Entity<UsuarioUbicacion>()
                 .HasOne(uu => uu.Ubicacion)
                 .WithMany()
-                .HasForeignKey(uu => uu.IdUbicacion)
+                .HasForeignKey(uu => uu.UbicacionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // PRECISIONES DECIMALES
