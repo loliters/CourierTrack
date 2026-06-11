@@ -19,7 +19,7 @@ namespace WebAppCourierTrack.Entidades
             get => nombre;
             set => nombre = value?.Trim().ToUpper();
         }
-        // Relación 1:N
+        // Relación 1:N, navegacion
         public List<Usuario> Usuarios { get; set; }
     }
 }

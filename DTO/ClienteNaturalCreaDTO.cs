@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WebAppCourierTrack.Entidades;
 
-namespace WebAppCourierTrack.Entidades
+namespace WebAppCourierTrack.DTO
 {
-    public class ClienteNatural
+    public class ClienteNaturalCreaDTO
     {
-        [Key]
-        public int Id { get; set; }
 
         [Required(ErrorMessage = "La fecha de nacimiento es obligatoria")]
         [DataType(DataType.Date)]
@@ -15,12 +14,9 @@ namespace WebAppCourierTrack.Entidades
         [Required(ErrorMessage = "El género es obligatorio")]
         public int GeneroId { get; set; }
 
-        public Genero Genero { get; set; }
-
         // FK Cliente unico 1:1
         [Required(ErrorMessage = "El cliente es obligatorio")]
         public int ClienteId { get; set; }
 
-        public Cliente Cliente { get; set; }
     }
 }

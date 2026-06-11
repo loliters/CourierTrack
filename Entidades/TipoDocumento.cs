@@ -19,7 +19,7 @@ namespace WebAppCourierTrack.Entidades
             set => nombre = value?.Trim().ToUpper();
         }
 
-        // Relación con Cliente
+        // Relación con Cliente, propiedad de navegacion
         public List<Cliente> Clientes { get; set; }
     }
 }

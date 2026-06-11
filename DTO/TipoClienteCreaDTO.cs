@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebAppCourierTrack.Entidades
+namespace WebAppCourierTrack.DTO
 {
-    public class TipoCliente
+    public class TipoClienteCreaDTO
     {
-
-        [Key]
-        public int Id { get; set; }
 
         private string nombre;
 
@@ -19,7 +16,5 @@ namespace WebAppCourierTrack.Entidades
             get => nombre;
             set => nombre = value?.Trim().ToUpper();
         }
-        // Relación con Cliente, propiedades de navegacion
-        public List<Cliente> Clientes { get; set; }
     }
 }

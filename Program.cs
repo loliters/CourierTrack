@@ -21,7 +21,8 @@ namespace WebAppCourierTrack
             builder.Services.AddDbContext<ApplicationDBContext>(
     opciones => opciones.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
-            //
+            // automapper
+            builder.Services.AddAutoMapper(typeof(Program));
 
             var app = builder.Build();
 

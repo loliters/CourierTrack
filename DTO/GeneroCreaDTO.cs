@@ -1,16 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebAppCourierTrack.Entidades
+namespace WebAppCourierTrack.DTO
 {
-    public class TipoCliente
+    public class GeneroCreaDTO
     {
 
-        [Key]
-        public int Id { get; set; }
 
         private string nombre;
 
-        [Required(ErrorMessage = "El nombre del tipo de cliente es obligatorio")]
+        [Required(ErrorMessage = "El nombre del género es obligatorio")]
         [StringLength(30, ErrorMessage = "El campo {0} no debe exceder de {1} caracteres")]
         [RegularExpression(@"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$",
             ErrorMessage = "Solo se permiten letras")]
@@ -19,7 +17,5 @@ namespace WebAppCourierTrack.Entidades
             get => nombre;
             set => nombre = value?.Trim().ToUpper();
         }
-        // Relación con Cliente, propiedades de navegacion
-        public List<Cliente> Clientes { get; set; }
     }
 }

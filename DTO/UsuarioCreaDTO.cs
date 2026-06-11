@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebAppCourierTrack.Entidades
+namespace WebAppCourierTrack.DTO
 {
-    public class Usuario
+    public class UsuarioCreaDTO
     {
-        [Key]
-        public int Id { get; set; }
+  
 
         [Required(ErrorMessage = "El nombre es obligatorio")]
         [StringLength(50, ErrorMessage = "El campo {0} no debe exceder de {1} caracteres")]
@@ -40,19 +39,11 @@ namespace WebAppCourierTrack.Entidades
             @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-]).{8,}$",
             ErrorMessage = "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial")]
         public string Password { get; set; }
+        //rol
 
-        // Clave foránea
         [Required(ErrorMessage = "El rol es obligatorio")]
         public int RolId { get; set; }
 
-        // Propiedad de navegación
-        public Rol Rol { get; set; }
-        // Relación con Cliente
-        // especialización
-        public Cliente Cliente { get; set; }
-        public Conductor Conductor { get; set; }
 
-        //usuario calificacion  1:N , navegacion
-        public List<Calificacion> Calificaciones { get; set; }
     }
 }
