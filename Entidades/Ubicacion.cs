@@ -24,5 +24,7 @@ namespace WebAppCourierTrack.Entidades
 
         //relacion 1:N destino
         public List<DireccionDestino> DireccionesDestinos { get; set; }
+
+        public List<UsuarioUbicacion> UsuariosUbicaciones { get; set; }
     }
 }

@@ -9,10 +9,9 @@ namespace WebAppCourierTrack.Entidades
 
         [Required]
         public DateTime Fecha { get; set; }
-
         [MaxLength(255, ErrorMessage = "La observación no puede superar los 255 caracteres")]
         public string Observacion { get; set; } 
-
+        //FK
         public int PedidoId { get; set; }
         public int ConductorId { get; set; }
         public int VehiculoId { get; set; }

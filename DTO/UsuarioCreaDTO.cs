@@ -43,6 +43,7 @@ namespace WebAppCourierTrack.DTO
 
         [Required(ErrorMessage = "El rol es obligatorio")]
         public int RolId { get; set; }
+        public List<int> UbicacionesIds { get; set; } = new List<int>();
 
 
     }

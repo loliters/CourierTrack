@@ -54,5 +54,6 @@ namespace WebAppCourierTrack.Entidades
 
         //usuario calificacion  1:N , navegacion
         public List<Calificacion> Calificaciones { get; set; }
+        public List<UsuarioUbicacion> UsuariosUbicaciones { get; set; }
     }
 }

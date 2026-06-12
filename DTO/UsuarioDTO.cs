@@ -18,8 +18,11 @@ namespace WebAppCourierTrack.DTO
 
         public string Password { get; set; }
 
-        //para mostrar el rol
+        // Para mostrar el rol
         public int RolId { get; set; }
+
+        // Agregar esta propiedad para mostrar el nombre del rol
+        public string RolNombre { get; set; }
 
     }
 }
