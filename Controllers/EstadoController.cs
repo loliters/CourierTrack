@@ -34,8 +34,7 @@ namespace WebAppCourierTrack.Controllers
             return _mapper.Map<List<EstadoDTO>>(estados);
         }
 
-        // GET: api/Estado/5
-        // Público
+        // GEt
         [HttpGet("{id:int}", Name = "ObtenerEstado")]
         public async Task<ActionResult<EstadoConPedidosDTO>> Get(int id)
         {
