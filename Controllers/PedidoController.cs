@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebAppCourierTrack.DTO;
 using WebAppCourierTrack.Entidades;
 
@@ -8,207 +10,208 @@ namespace WebAppCourierTrack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PedidoController: Controller
+    [Authorize] // Todos los endpoints requieren autenticación
+    public class PedidoController : ControllerBase
     {
-        private readonly
-            ApplicationDBContext
-            _context;
+        private readonly ApplicationDBContext _context;
+        private readonly IMapper _mapper;
 
-        private readonly
-            IMapper _mapper;
-
-        public PedidoController(
-            ApplicationDBContext
-            context,
-            IMapper mapper)
+        public PedidoController(ApplicationDBContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        // GET
+        // GET: api/Pedido
         [HttpGet]
-        public async Task<ActionResult<
-            List<
-            PedidoConEstadosDTO>>>
-            Get()
+        public async Task<ActionResult<List<PedidoConEstadosDTO>>> Get()
         {
-            var pedidos =
-                await _context
-                .Pedidos
-                .Include(x =>
-                    x.EstadosPedidos)
-                .ThenInclude(x =>
-                    x.Estado)
-                .ToListAsync();
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            return _mapper.Map<
-                List<
-                PedidoConEstadosDTO>>
-                (pedidos);
-        }
+            IQueryable<Pedido> query = _context.Pedidos
+                .Include(p => p.EstadosPedidos)
+                    .ThenInclude(ep => ep.Estado)
+                .Include(p => p.Cliente)
+                    .ThenInclude(c => c.Usuario);
 
-        // GET BY ID
-        [HttpGet("{id:int}",
-            Name =
-            "ObtenerPedido")]
-        public async Task<
-            ActionResult<
-            PedidoConEstadosDTO>>
-            Get(int id)
-        {
-            var pedido =
-                await _context
-                .Pedidos
-                .Include(x =>
-                    x.EstadosPedidos)
-                .ThenInclude(x =>
-                    x.Estado)
-                .FirstOrDefaultAsync(
-                    x => x.Id == id);
-
-            if (pedido == null)
+            if (rol == "ADMINISTRADOR")
             {
-                return NotFound(
-                    "Pedido no encontrado");
+                // Admin ve todos
+            }
+            else if (rol == "CLIENTE")
+            {
+                // Cliente ve sus propios pedidos
+                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == userId);
+                if (cliente == null)
+                    return BadRequest("No tienes un perfil de cliente.");
+                query = query.Where(p => p.ClienteId == cliente.Id);
+            }
+            else if (rol == "CONDUCTOR")
+            {
+                // Conductor ve los pedidos asignados a él
+                var conductor = await _context.Conductores.FirstOrDefaultAsync(c => c.UsuarioId == userId);
+                if (conductor == null)
+                    return BadRequest("No tienes un perfil de conductor.");
+                var pedidosAsignados = await _context.Seguimientos
+                    .Where(s => s.ConductorId == conductor.Id)
+                    .Select(s => s.PedidoId)
+                    .Distinct()
+                    .ToListAsync();
+                query = query.Where(p => pedidosAsignados.Contains(p.Id));
+            }
+            else
+            {
+                return Forbid("Rol no autorizado.");
             }
 
-            return _mapper.Map<
-                PedidoConEstadosDTO>(
-                    pedido);
+            var pedidos = await query.ToListAsync();
+            return Ok(_mapper.Map<List<PedidoConEstadosDTO>>(pedidos));
         }
 
-        // POST
+        // GET: api/Pedido/5
+        [HttpGet("{id:int}", Name = "ObtenerPedido")]
+        public async Task<ActionResult<PedidoConEstadosDTO>> Get(int id)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var pedido = await _context.Pedidos
+                .Include(p => p.EstadosPedidos)
+                    .ThenInclude(ep => ep.Estado)
+                .Include(p => p.Cliente)
+                    .ThenInclude(c => c.Usuario)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (pedido == null)
+                return NotFound("Pedido no encontrado.");
+
+            // Validar permiso según rol
+            if (rol == "ADMINISTRADOR")
+            {
+                // Admin puede ver cualquiera
+            }
+            else if (rol == "CLIENTE")
+            {
+                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == userId);
+                if (cliente == null || pedido.ClienteId != cliente.Id)
+                    return Forbid("No tienes permiso para ver este pedido.");
+            }
+            else if (rol == "CONDUCTOR")
+            {
+                var conductor = await _context.Conductores.FirstOrDefaultAsync(c => c.UsuarioId == userId);
+                if (conductor == null)
+                    return Forbid("No tienes un perfil de conductor.");
+                bool asignado = await _context.Seguimientos.AnyAsync(s => s.PedidoId == id && s.ConductorId == conductor.Id);
+                if (!asignado)
+                    return Forbid("No tienes permiso para ver este pedido.");
+            }
+            else
+            {
+                return Forbid("Rol no autorizado.");
+            }
+
+            return Ok(_mapper.Map<PedidoConEstadosDTO>(pedido));
+        }
+
+        // POST: api/Pedido
         [HttpPost]
-        public async Task<
-            ActionResult>
-            Post(
-            [FromBody]
-            PedidoCreaDTO
-            pedidoDTO)
+        public async Task<ActionResult<PedidoDTO>> Post(PedidoCreaDTO pedidoDTO)
         {
-            if (pedidoDTO
-                .EstadoIds ==
-                null)
-            {
-                return BadRequest(
-                    "Debe asignar al menos un estado.");
-            }
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            // validar estados
-            var estadoIds =
-                await _context
-                .Estados
-                .Where(x =>
-                    pedidoDTO
-                    .EstadoIds
-                    .Contains(x.Id))
-                .Select(x =>
-                    x.Id)
+            // Validar estados
+            if (pedidoDTO.EstadoIds == null || !pedidoDTO.EstadoIds.Any())
+                return BadRequest("Debe asignar al menos un estado.");
+
+            var estadoIds = await _context.Estados
+                .Where(e => pedidoDTO.EstadoIds.Contains(e.Id))
+                .Select(e => e.Id)
                 .ToListAsync();
 
-            if (estadoIds.Count
-                != pedidoDTO
-                .EstadoIds.Count)
+            if (estadoIds.Count != pedidoDTO.EstadoIds.Count)
+                return BadRequest("Se ingresó un estado que no existe.");
+
+            // Determinar el ClienteId según el rol
+            int clienteId;
+            if (rol == "ADMINISTRADOR")
             {
-                return BadRequest(
-                    "Se ingresó un estado que no existe.");
+                // Admin puede crear pedido para cualquier cliente (debe enviar ClienteId en el DTO)
+                if (pedidoDTO.ClienteId == null)
+                    return BadRequest("Para administradores, debe proporcionar el ClienteId.");
+                clienteId = pedidoDTO.ClienteId.Value;
+                // Validar que el cliente exista
+                if (!await _context.Clientes.AnyAsync(c => c.Id == clienteId))
+                    return BadRequest("El cliente especificado no existe.");
+            }
+            else if (rol == "CLIENTE")
+            {
+                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == userId);
+                if (cliente == null)
+                    return BadRequest("No tienes un perfil de cliente.");
+                clienteId = cliente.Id;
+                // Asegurar que el DTO no envíe un ClienteId diferente
+                if (pedidoDTO.ClienteId != null && pedidoDTO.ClienteId != clienteId)
+                    return BadRequest("No puedes crear un pedido para otro cliente.");
+            }
+            else
+            {
+                return Forbid("Solo Administradores y Clientes pueden crear pedidos.");
             }
 
-            var pedido =
-                _mapper.Map<
-                    Pedido>(
-                    pedidoDTO);
+            var pedido = _mapper.Map<Pedido>(pedidoDTO);
+            pedido.ClienteId = clienteId;
 
-            _context
-                .Pedidos
-                .Add(pedido);
+            _context.Pedidos.Add(pedido);
+            await _context.SaveChangesAsync();
 
-            await _context
-                .SaveChangesAsync();
-
-            var pedidoMap =
-                _mapper.Map<
-                    PedidoDTO>(
-                    pedido);
-
-            return CreatedAtRoute(
-                "ObtenerPedido",
-                new
-                {
-                    id =
-                    pedido.Id
-                },
-                pedidoMap);
+            var pedidoMap = _mapper.Map<PedidoDTO>(pedido);
+            return CreatedAtRoute("ObtenerPedido", new { id = pedido.Id }, pedidoMap);
         }
 
-        // PUT
+        // PUT: api/Pedido/5
         [HttpPut("{id:int}")]
-        public async Task<
-            ActionResult>
-            Put(
-            int id,
-            PedidoCreaDTO
-            pedidoDTO)
+        [Authorize(Roles = "ADMINISTRADOR")] // Solo administrador puede actualizar pedidos
+        public async Task<IActionResult> Put(int id, PedidoCreaDTO pedidoDTO)
         {
-            var pedido =
-                await _context
-                .Pedidos
-                .Include(x =>
-                    x.EstadosPedidos)
-                .FirstOrDefaultAsync(
-                    x =>
-                    x.Id == id);
+            var pedido = await _context.Pedidos
+                .Include(p => p.EstadosPedidos)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (pedido == null)
-            {
-                return NotFound(
-                    "Pedido no existe");
-            }
+                return NotFound("Pedido no existe.");
 
-            pedido =
-                _mapper.Map(
-                    pedidoDTO,
-                    pedido);
+            // Validar estados
+            if (pedidoDTO.EstadoIds == null || !pedidoDTO.EstadoIds.Any())
+                return BadRequest("Debe asignar al menos un estado.");
 
-            _context
-                .Pedidos
-                .Update(pedido);
+            var estadoIds = await _context.Estados
+                .Where(e => pedidoDTO.EstadoIds.Contains(e.Id))
+                .Select(e => e.Id)
+                .ToListAsync();
 
-            await _context
-                .SaveChangesAsync();
+            if (estadoIds.Count != pedidoDTO.EstadoIds.Count)
+                return BadRequest("Se ingresó un estado que no existe.");
+
+            // Mapear y actualizar
+            _mapper.Map(pedidoDTO, pedido);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // DELETE
+        // DELETE: api/Pedido/5
         [HttpDelete("{id:int}")]
-        public async Task<
-            ActionResult>
-            Delete(int id)
+        [Authorize(Roles = "ADMINISTRADOR")] // Solo administrador puede eliminar
+        public async Task<IActionResult> Delete(int id)
         {
-            var existe =
-                await _context
-                .Pedidos
-                .AnyAsync(x =>
-                    x.Id == id);
+            var pedido = await _context.Pedidos.FindAsync(id);
+            if (pedido == null)
+                return NotFound("Pedido no existe.");
 
-            if (!existe)
-            {
-                return NotFound(
-                    "Pedido no existe");
-            }
-
-            _context
-                .Pedidos
-                .Remove(
-                    new Pedido
-                    {
-                        Id = id
-                    });
-
-            await _context
-                .SaveChangesAsync();
+            _context.Pedidos.Remove(pedido);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

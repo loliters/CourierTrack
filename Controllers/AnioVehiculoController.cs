@@ -60,7 +60,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT: api/AnioVehiculo/5 (solo Administrador)
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Put(int id, AnioVehiculoCreaDTO anioVehiculoCreaDTO)
         {
             var anio = await _context.AnioVehiculos.FindAsync(id);
@@ -81,7 +81,7 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE: api/AnioVehiculo/5 (solo Administrador)
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Delete(int id)
         {
             var anio = await _context.AnioVehiculos.FindAsync(id);

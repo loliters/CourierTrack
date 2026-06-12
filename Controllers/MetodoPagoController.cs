@@ -10,6 +10,7 @@ namespace WebAppCourierTrack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MetodoPagoController : Controller
     {
         private readonly ApplicationDBContext _context;
@@ -41,7 +42,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST: api/MetodoPago // Administrador
         [HttpPost]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<MetodoPagoDTO>> Post(MetodoPagoCreaDTO metodoPagoCreaDTO)
         {
             // Verificar duplicado (nombre único)
@@ -59,7 +60,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT: api/MetodoPago/5 // Administrador
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Put(int id, MetodoPagoCreaDTO metodoPagoCreaDTO)
         {
             var metodo = await _context.MetodoPagos.FindAsync(id);

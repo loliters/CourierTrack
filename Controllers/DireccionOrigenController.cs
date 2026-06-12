@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebAppCourierTrack.DTO;
 using WebAppCourierTrack.Entidades;
 
@@ -8,185 +10,123 @@ namespace WebAppCourierTrack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // Todos los endpoints requieren autenticación
     public class DireccionOrigenController : Controller
     {
         private readonly ApplicationDBContext _context;
         private readonly IMapper _mapper;
 
-        public DireccionOrigenController(
-            ApplicationDBContext context,
-            IMapper mapper)
+        public DireccionOrigenController(ApplicationDBContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        // GET
+        // GET: api/DireccionOrigen (solo administrador)
         [HttpGet]
-        public async Task<ActionResult<
-            List<DireccionOrigenDTO>>> Get()
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<ActionResult<List<DireccionOrigenDTO>>> Get()
         {
-            var direcciones =
-                await _context.DireccionesOrigenes
+            var direcciones = await _context.DireccionesOrigenes.ToListAsync();
+            return Ok(_mapper.Map<List<DireccionOrigenDTO>>(direcciones));
+        }
+
+        // GET: api/DireccionOrigen/mis-direcciones (cliente autenticado)
+        [HttpGet("mis-direcciones")]
+        public async Task<ActionResult<List<DireccionOrigenDTO>>> GetMisDirecciones()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+            // Obtener IDs de direcciones origen usadas en pedidos del usuario
+            var direccionesIds = await _context.DetallePedidos
+                .Where(dp => _context.Pedidos.Any(p => p.DetallePedidoId == dp.Id &&
+                            _context.Clientes.Any(c => c.Id == p.ClienteId && c.UsuarioId == userId)))
+                .Select(dp => dp.DireccionOrigenId)
+                .Distinct()
                 .ToListAsync();
 
-            return _mapper.Map<
-                List<DireccionOrigenDTO>>(
-                    direcciones);
+            var direcciones = await _context.DireccionesOrigenes
+                .Where(d => direccionesIds.Contains(d.Id))
+                .ToListAsync();
+
+            return Ok(_mapper.Map<List<DireccionOrigenDTO>>(direcciones));
         }
 
-        // GET
-        [HttpGet("{id:int}",
-            Name = "ObtenerDireccionOrigen")]
-        public async Task<ActionResult<
-            DireccionOrigenDTO>> Get(int id)
+        // GET: api/DireccionOrigen/5 (permiso si está relacionada con el usuario o es admin)
+        [HttpGet("{id:int}", Name = "ObtenerDireccionOrigen")]
+        public async Task<ActionResult<DireccionOrigenDTO>> Get(int id)
         {
-            var direccion =
-                await _context.DireccionesOrigenes
-                .FirstOrDefaultAsync(x =>
-                    x.Id == id);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            var direccion = await _context.DireccionesOrigenes.FindAsync(id);
             if (direccion == null)
-            {
                 return NotFound("Dirección origen no encontrada.");
+
+            if (rol != "ADMINISTRADOR")
+            {
+                var puedeVer = await _context.DetallePedidos
+                    .AnyAsync(dp => dp.DireccionOrigenId == id &&
+                        _context.Pedidos.Any(p => p.DetallePedidoId == dp.Id &&
+                            _context.Clientes.Any(c => c.Id == p.ClienteId && c.UsuarioId == userId)));
+
+                if (!puedeVer)
+                    return Forbid("No tienes permiso para ver esta dirección origen.");
             }
 
-            return _mapper.Map<
-                DireccionOrigenDTO>(
-                    direccion);
+            return Ok(_mapper.Map<DireccionOrigenDTO>(direccion));
         }
 
-        // POST
+        // POST: api/DireccionOrigen (cualquier usuario autenticado puede crear)
         [HttpPost]
-        public async Task<ActionResult> Post(
-            [FromBody]
-            DireccionOrigenCreaDTO
-            direccionOrigenCreaDTO)
+        public async Task<ActionResult<DireccionOrigenDTO>> Post(DireccionOrigenCreaDTO dto)
         {
-            // validar ubicación
-            var existeUbicacion =
-                await _context.Ubicaciones
-                .AnyAsync(x =>
-                    x.Id ==
-                    direccionOrigenCreaDTO
-                    .UbicacionId);
+            // Validar ubicación
+            if (!await _context.Ubicaciones.AnyAsync(u => u.Id == dto.UbicacionId))
+                return BadRequest("La ubicación no existe.");
 
-            if (!existeUbicacion)
-            {
-                return BadRequest(
-                    "La ubicación no existe.");
-            }
-
-            var direccion =
-                _mapper.Map<
-                    DireccionOrigen>(
-                    direccionOrigenCreaDTO);
-
-            _context.Add(direccion);
-
+            var direccion = _mapper.Map<DireccionOrigen>(dto);
+            _context.DireccionesOrigenes.Add(direccion);
             await _context.SaveChangesAsync();
 
-            var direccionDTO =
-                _mapper.Map<
-                    DireccionOrigenDTO>(
-                    direccion);
-
-            return CreatedAtRoute(
-                "ObtenerDireccionOrigen",
-                new
-                {
-                    id = direccion.Id
-                },
-                direccionDTO);
+            var direccionDTO = _mapper.Map<DireccionOrigenDTO>(direccion);
+            return CreatedAtRoute("ObtenerDireccionOrigen", new { id = direccion.Id }, direccionDTO);
         }
 
-        // PUT
+        // PUT: api/DireccionOrigen/5 (solo administrador)
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(
-            int id,
-            DireccionOrigenCreaDTO
-            direccionOrigenCreaDTO)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> Put(int id, DireccionOrigenCreaDTO dto)
         {
-            var existeDireccion =
-                await _context
-                .DireccionesOrigenes
-                .AnyAsync(x =>
-                    x.Id == id);
+            var direccion = await _context.DireccionesOrigenes.FindAsync(id);
+            if (direccion == null)
+                return NotFound("La dirección origen no existe.");
 
-            if (!existeDireccion)
-            {
-                return NotFound(
-                    "La dirección origen no existe.");
-            }
+            if (!await _context.Ubicaciones.AnyAsync(u => u.Id == dto.UbicacionId))
+                return BadRequest("La ubicación no existe.");
 
-            // validar ubicación
-            var existeUbicacion =
-                await _context.Ubicaciones
-                .AnyAsync(x =>
-                    x.Id ==
-                    direccionOrigenCreaDTO
-                    .UbicacionId);
-
-            if (!existeUbicacion)
-            {
-                return BadRequest(
-                    "La ubicación no existe.");
-            }
-
-            var direccion =
-                _mapper.Map<
-                    DireccionOrigen>(
-                    direccionOrigenCreaDTO);
-
-            direccion.Id = id;
-
-            _context.Update(
-                direccion);
-
-            await _context
-                .SaveChangesAsync();
-
+            _mapper.Map(dto, direccion);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        // DELETE: api/direccionorigen/5
+        // DELETE: api/DireccionOrigen/5 (solo administrador)
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult>
-            Delete(int id)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> Delete(int id)
         {
-            var direccion =
-                await _context
-                .DireccionesOrigenes
-                .FindAsync(id);
-
+            var direccion = await _context.DireccionesOrigenes.FindAsync(id);
             if (direccion == null)
-            {
-                return NotFound(
-                    "La dirección origen no existe.");
-            }
+                return NotFound("La dirección origen no existe.");
 
-            // validar relación con detalle pedido
-            var tieneDetalles =
-                await _context
-                .DetallePedidos
-                .AnyAsync(x =>
-                    x.DireccionOrigenId
-                    == id);
-
+            // Verificar si tiene detalles de pedido asociados
+            var tieneDetalles = await _context.DetallePedidos.AnyAsync(dp => dp.DireccionOrigenId == id);
             if (tieneDetalles)
-            {
-                return BadRequest(
-                    "No se puede eliminar porque tiene detalles de pedido asociados.");
-            }
+                return BadRequest("No se puede eliminar porque tiene detalles de pedido asociados.");
 
-            _context.DireccionesOrigenes
-                .Remove(direccion);
-
-            await _context
-                .SaveChangesAsync();
-
-            return Ok(
-                "Dirección origen eliminada correctamente.");
+            _context.DireccionesOrigenes.Remove(direccion);
+            await _context.SaveChangesAsync();
+            return Ok("Dirección origen eliminada correctamente.");
         }
     }
 }

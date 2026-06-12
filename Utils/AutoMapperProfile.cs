@@ -111,7 +111,18 @@ namespace WebAppCourierTrack.Utils
             CreateMap<Modelo, ModeloDTO>();
             //Vehiculo
             CreateMap<VehiculoCreaDTO, Vehiculo>();
-            CreateMap<Vehiculo, VehiculoDTO>();
+            CreateMap<Vehiculo, VehiculoDTO>()
+                .ForMember(dest => dest.ModeloNombre,
+                           opt => opt.MapFrom(src => src.Modelo.Nombre))
+                .ForMember(dest => dest.ColorNombre,
+                           opt => opt.MapFrom(src => src.Color.Nombre))
+                .ForMember(dest => dest.Anio,
+                           opt => opt.MapFrom(src => src.AnioVehiculo != null ? src.AnioVehiculo.Anio : 0))
+                .ForMember(dest => dest.ConductorNroLicencia,
+                           opt => opt.MapFrom(src => src.Conductor != null ? src.Conductor.NroLicencia : null))
+                .ForMember(dest => dest.ConductorNombre,
+                           opt => opt.MapFrom(src => src.Conductor != null && src.Conductor.Usuario != null ?
+                                                     src.Conductor.Usuario.Nombre : null));
             //Tarifa
             CreateMap<TarifaCreaDTO, Tarifa>();
             CreateMap<Tarifa, TarifaDTO>();

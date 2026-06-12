@@ -27,7 +27,7 @@ namespace WebAppCourierTrack.DTO
 
         // FK Cliente
         [Required(ErrorMessage = "El cliente es obligatorio")]
-        public int ClienteId { get; set; }
+        public int? ClienteId { get; set; }
 
         // FK Calificacion (opcional)
         public int? CalificacionId { get; set; }

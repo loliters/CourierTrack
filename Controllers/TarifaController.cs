@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.DTO;
@@ -10,7 +9,8 @@ namespace WebAppCourierTrack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TarifaController : Controller
+    [Authorize]  // Todos los métodos requieren autenticación
+    public class TarifaController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
         private readonly IMapper _mapper;
@@ -21,7 +21,7 @@ namespace WebAppCourierTrack.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/Tarifa (público)
+        // GET: api/Tarifa
         [HttpGet]
         public async Task<ActionResult<List<TarifaDTO>>> Get()
         {
@@ -29,7 +29,7 @@ namespace WebAppCourierTrack.Controllers
             return Ok(_mapper.Map<List<TarifaDTO>>(tarifas));
         }
 
-        // GET: api/Tarifa/5 (público)
+        // GET: api/Tarifa/5
         [HttpGet("{id:int}", Name = "ObtenerTarifa")]
         public async Task<ActionResult<TarifaDTO>> Get(int id)
         {
@@ -42,7 +42,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST: api/Tarifa (solo Administrador)
         [HttpPost]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<TarifaDTO>> Post(TarifaCreaDTO tarifaCreaDTO)
         {
             // Verificar que el TipoVehiculoId exista
@@ -65,7 +65,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT: api/Tarifa/5 (solo Administrador)
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Put(int id, TarifaCreaDTO tarifaCreaDTO)
         {
             var tarifa = await _context.Tarifas.FindAsync(id);
@@ -93,7 +93,7 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE: api/Tarifa/5 (solo Administrador)
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Delete(int id)
         {
             var tarifa = await _context.Tarifas.FindAsync(id);

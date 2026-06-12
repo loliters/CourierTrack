@@ -25,19 +25,35 @@ namespace WebAppCourierTrack.Controllers
         [HttpGet]
         public async Task<ActionResult<List<VehiculoDTO>>> Get()
         {
-            var vehiculos = await _context.Vehiculos.ToListAsync();
-            return Ok(_mapper.Map<List<VehiculoDTO>>(vehiculos));
+            var vehiculos = await _context.Vehiculos
+            .Include(v => v.Modelo)
+            .Include(v => v.Color)
+            .Include(v => v.AnioVehiculo)
+            .Include(v => v.Conductor)
+                .ThenInclude(c => c.Usuario)   
+            .ToListAsync();
+
+            var vehiculosDTO = _mapper.Map<List<VehiculoDTO>>(vehiculos);
+            return Ok(vehiculosDTO);
         }
 
         // GET: api/Vehiculo/5 
         [HttpGet("{id:int}", Name = "ObtenerVehiculo")]
         public async Task<ActionResult<VehiculoDTO>> Get(int id)
         {
-            var vehiculo = await _context.Vehiculos.FindAsync(id);
+            var vehiculo = await _context.Vehiculos
+                .Include(v => v.Modelo)
+                .Include(v => v.Color)
+                .Include(v => v.AnioVehiculo)
+                .Include(v => v.Conductor)
+                    .ThenInclude(c => c.Usuario)   
+                .FirstOrDefaultAsync(v => v.Id == id);
+
             if (vehiculo == null)
                 return NotFound("No existe el vehículo");
 
-            return Ok(_mapper.Map<VehiculoDTO>(vehiculo));
+            var vehiculoDTO = _mapper.Map<VehiculoDTO>(vehiculo);
+            return Ok(vehiculoDTO);
         }
 
         // POST: api/Vehiculo (solo Administrador)

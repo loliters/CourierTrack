@@ -16,6 +16,7 @@ namespace WebAppCourierTrack.Entidades
         public int TipoLicenciaId { get; set; }
 
         // Propiedades de navegación
+        public Usuario Usuario { get; set; }
         public TipoLicencia TipoLicencia { get; set; } 
     }
 }

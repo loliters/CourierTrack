@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebAppCourierTrack.DTO;
 using WebAppCourierTrack.Entidades;
 
@@ -8,195 +10,111 @@ namespace WebAppCourierTrack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // Todos los endpoints requieren autenticación
     public class ClienteNaturalController : Controller
     {
         private readonly ApplicationDBContext _context;
         private readonly IMapper _mapper;
 
-        public ClienteNaturalController(
-            ApplicationDBContext context,
-            IMapper mapper)
+        public ClienteNaturalController(ApplicationDBContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        // GET
+        // GET: api/ClienteNatural (solo administrador)
         [HttpGet]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<List<ClienteNaturalDTO>>> Get()
         {
-            var clientesNaturales =
-                await _context.ClientesNatural
+            var clientesNaturales = await _context.ClientesNatural
+                .Include(cn => cn.Cliente)
+                    .ThenInclude(c => c.Usuario)
                 .ToListAsync();
-
-            return _mapper.Map<
-                List<ClienteNaturalDTO>>(
-                    clientesNaturales);
+            return Ok(_mapper.Map<List<ClienteNaturalDTO>>(clientesNaturales));
         }
 
-        // GET
-        [HttpGet("{id:int}",
-            Name = "ObtenerClienteNatural")]
-        public async Task<ActionResult<ClienteNaturalDTO>>
-            Get(int id)
+        // GET: api/ClienteNatural/5
+        [HttpGet("{id:int}", Name = "ObtenerClienteNatural")]
+        public async Task<ActionResult<ClienteNaturalDTO>> Get(int id)
         {
-            var clienteNatural =
-                await _context.ClientesNatural
-                .FirstOrDefaultAsync(x =>
-                    x.Id == id);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var clienteNatural = await _context.ClientesNatural
+                .Include(cn => cn.Cliente)
+                    .ThenInclude(c => c.Usuario)
+                .FirstOrDefaultAsync(cn => cn.Id == id);
 
             if (clienteNatural == null)
-            {
-                return NotFound(
-                    "Cliente natural no encontrado.");
-            }
+                return NotFound("Cliente natural no encontrado.");
 
-            return _mapper.Map<
-                ClienteNaturalDTO>(
-                    clienteNatural);
+            // Validar permiso: administrador o el propio usuario (dueño del cliente)
+            if (rol != "ADMINISTRADOR" && clienteNatural.Cliente?.UsuarioId != userId)
+                return Forbid("No tienes permiso para ver este cliente natural.");
+
+            return Ok(_mapper.Map<ClienteNaturalDTO>(clienteNatural));
         }
 
-        // POST
+        // POST: api/ClienteNatural (solo administrador)
         [HttpPost]
-        public async Task<ActionResult> Post(
-            [FromBody]
-            ClienteNaturalCreaDTO
-            clienteNaturalCreaDTO)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<ActionResult<ClienteNaturalDTO>> Post(ClienteNaturalCreaDTO dto)
         {
-            // validar género
-            var existeGenero =
-                await _context.Generos
-                .AnyAsync(x =>
-                    x.Id ==
-                    clienteNaturalCreaDTO.GeneroId);
+            // Validar género
+            if (!await _context.Generos.AnyAsync(g => g.Id == dto.GeneroId))
+                return BadRequest("El género no existe.");
 
-            if (!existeGenero)
-            {
-                return BadRequest(
-                    "El género no existe.");
-            }
+            // Validar que el cliente base exista
+            if (!await _context.Clientes.AnyAsync(c => c.Id == dto.ClienteId))
+                return BadRequest("El cliente no existe.");
 
-            // validar cliente
-            var existeCliente =
-                await _context.Clientes
-                .AnyAsync(x =>
-                    x.Id ==
-                    clienteNaturalCreaDTO.ClienteId);
+            // Validar relación 1:1 (cliente no asignado a otro natural)
+            if (await _context.ClientesNatural.AnyAsync(cn => cn.ClienteId == dto.ClienteId))
+                return BadRequest("Ese cliente ya está asignado a un cliente natural.");
 
-            if (!existeCliente)
-            {
-                return BadRequest(
-                    "El cliente no existe.");
-            }
-
-            // validar cliente no usado (1:1)
-            var clienteYaAsignado =
-                await _context.ClientesNatural
-                .AnyAsync(x =>
-                    x.ClienteId ==
-                    clienteNaturalCreaDTO.ClienteId);
-
-            if (clienteYaAsignado)
-            {
-                return BadRequest(
-                    "Ese cliente ya está asignado a un cliente natural.");
-            }
-
-            var clienteNatural =
-                _mapper.Map<
-                    ClienteNatural>(
-                    clienteNaturalCreaDTO);
-
-            _context.Add(clienteNatural);
-
+            var clienteNatural = _mapper.Map<ClienteNatural>(dto);
+            _context.ClientesNatural.Add(clienteNatural);
             await _context.SaveChangesAsync();
 
-            var clienteNaturalDTO =
-                _mapper.Map<
-                    ClienteNaturalDTO>(
-                    clienteNatural);
-
-            return CreatedAtRoute(
-                "ObtenerClienteNatural",
-                new
-                {
-                    id = clienteNatural.Id
-                },
-                clienteNaturalDTO);
+            var resultDto = _mapper.Map<ClienteNaturalDTO>(clienteNatural);
+            return CreatedAtRoute("ObtenerClienteNatural", new { id = clienteNatural.Id }, resultDto);
         }
 
-        // PUT
+        // PUT: api/ClienteNatural/5 (solo administrador)
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(
-            int id,
-            ClienteNaturalCreaDTO
-            clienteNaturalCreaDTO)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> Put(int id, ClienteNaturalCreaDTO dto)
         {
-            var existeClienteNatural =
-                await _context.ClientesNatural
-                .AnyAsync(x =>
-                    x.Id == id);
+            var clienteNatural = await _context.ClientesNatural.FindAsync(id);
+            if (clienteNatural == null)
+                return NotFound("El cliente natural no existe.");
 
-            if (!existeClienteNatural)
-            {
-                return NotFound(
-                    "El cliente natural no existe.");
-            }
+            // Validar que el cliente base exista
+            if (!await _context.Clientes.AnyAsync(c => c.Id == dto.ClienteId))
+                return BadRequest("El cliente no existe.");
 
-            // validar cliente 1:1
-            var clienteYaAsignado =
-                await _context.ClientesNatural
-                .AnyAsync(x =>
-                    x.ClienteId ==
-                    clienteNaturalCreaDTO.ClienteId
-                    && x.Id != id);
+            // Validar que el cliente no esté asignado a otro natural (excepto el actual)
+            if (await _context.ClientesNatural.AnyAsync(cn => cn.ClienteId == dto.ClienteId && cn.Id != id))
+                return BadRequest("Ese cliente ya pertenece a otro cliente natural.");
 
-            if (clienteYaAsignado)
-            {
-                return BadRequest(
-                    "Ese cliente ya pertenece a otro cliente natural.");
-            }
-
-            var clienteNatural =
-                _mapper.Map<
-                    ClienteNatural>(
-                    clienteNaturalCreaDTO);
-
-            clienteNatural.Id = id;
-
-            _context.Update(
-                clienteNatural);
-
-            await _context
-                .SaveChangesAsync();
-
+            _mapper.Map(dto, clienteNatural);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        // DELETE: api/clientenatural/5
+        // DELETE: api/ClienteNatural/5 (solo administrador)
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult>
-            Delete(int id)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> Delete(int id)
         {
-            var clienteNatural =
-                await _context
-                .ClientesNatural
-                .FindAsync(id);
-
+            var clienteNatural = await _context.ClientesNatural.FindAsync(id);
             if (clienteNatural == null)
-            {
-                return NotFound(
-                    "El cliente natural no existe.");
-            }
+                return NotFound("El cliente natural no existe.");
 
-            _context.ClientesNatural
-                .Remove(clienteNatural);
-
-            await _context
-                .SaveChangesAsync();
-
-            return Ok(
-                "Cliente natural eliminado correctamente.");
+            _context.ClientesNatural.Remove(clienteNatural);
+            await _context.SaveChangesAsync();
+            return Ok("Cliente natural eliminado correctamente.");
         }
     }
 }

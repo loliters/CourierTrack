@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebAppCourierTrack.DTO;
 using WebAppCourierTrack.Entidades;
 
@@ -8,183 +10,105 @@ namespace WebAppCourierTrack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // Todos los endpoints requieren autenticación
     public class CalificacionController : Controller
     {
         private readonly ApplicationDBContext _context;
         private readonly IMapper _mapper;
 
-        public CalificacionController(
-            ApplicationDBContext context,
-            IMapper mapper)
+        public CalificacionController(ApplicationDBContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        // GET
+        // GET: api/Calificacion (cualquier usuario autenticado puede ver todas)
         [HttpGet]
-        public async Task<ActionResult<
-            List<CalificacionDTO>>> Get()
+        public async Task<ActionResult<List<CalificacionDTO>>> Get()
         {
-            var calificaciones =
-                await _context.Calificacions
-                .ToListAsync();
-
-            return _mapper.Map<
-                List<CalificacionDTO>>(
-                    calificaciones);
+            var calificaciones = await _context.Calificacions.ToListAsync();
+            return Ok(_mapper.Map<List<CalificacionDTO>>(calificaciones));
         }
 
-        // GET: api/calificacion/5
-        [HttpGet("{id:int}",
-            Name = "ObtenerCalificacion")]
-        public async Task<ActionResult<
-            CalificacionDTO>> Get(int id)
+        // GET: api/Calificacion/5
+        [HttpGet("{id:int}", Name = "ObtenerCalificacion")]
+        public async Task<ActionResult<CalificacionDTO>> Get(int id)
         {
-            var calificacion =
-                await _context.Calificacions
-                .FirstOrDefaultAsync(x =>
-                    x.Id == id);
-
+            var calificacion = await _context.Calificacions.FirstOrDefaultAsync(x => x.Id == id);
             if (calificacion == null)
-            {
-                return NotFound(
-                    "Calificación no encontrada.");
-            }
-
-            return _mapper.Map<
-                CalificacionDTO>(
-                    calificacion);
+                return NotFound("Calificación no encontrada.");
+            return Ok(_mapper.Map<CalificacionDTO>(calificacion));
         }
 
-        // POST: api/calificacion
+        // POST: api/Calificacion
         [HttpPost]
-        public async Task<ActionResult> Post(
-            [FromBody]
-            CalificacionCreaDTO
-            calificacionCreaDTO)
+        public async Task<ActionResult<CalificacionDTO>> Post(CalificacionCreaDTO calificacionCreaDTO)
         {
-            // validar usuario
-            var existeUsuario =
-                await _context.Usuarios
-                .AnyAsync(x =>
-                    x.Id ==
-                    calificacionCreaDTO.UsuarioId);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            // Verificar que el usuario exista
+            var existeUsuario = await _context.Usuarios.AnyAsync(u => u.Id == calificacionCreaDTO.UsuarioId);
             if (!existeUsuario)
-            {
-                return BadRequest(
-                    "El usuario no existe.");
-            }
+                return BadRequest("El usuario no existe.");
 
-            var calificacion =
-                _mapper.Map<
-                    Calificacion>(
-                    calificacionCreaDTO);
+            // Solo el mismo usuario o un administrador puede crear una calificación
+            if (rol != "ADMINISTRADOR" && calificacionCreaDTO.UsuarioId != userId)
+                return Forbid("No puedes crear una calificación para otro usuario.");
 
-            _context.Add(calificacion);
-
+            var calificacion = _mapper.Map<Calificacion>(calificacionCreaDTO);
+            _context.Calificacions.Add(calificacion);
             await _context.SaveChangesAsync();
 
-            var calificacionDTO =
-                _mapper.Map<
-                    CalificacionDTO>(
-                    calificacion);
-
-            return CreatedAtRoute(
-                "ObtenerCalificacion",
-                new
-                {
-                    id = calificacion.Id
-                },
-                calificacionDTO);
+            var calificacionDTO = _mapper.Map<CalificacionDTO>(calificacion);
+            return CreatedAtRoute("ObtenerCalificacion", new { id = calificacion.Id }, calificacionDTO);
         }
 
-        // PUT: api/calificacion/5
+        // PUT: api/Calificacion/5
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(
-            int id,
-            CalificacionCreaDTO
-            calificacionCreaDTO)
+        public async Task<IActionResult> Put(int id, CalificacionCreaDTO calificacionCreaDTO)
         {
-            var existeCalificacion =
-                await _context
-                .Calificacions
-                .AnyAsync(x =>
-                    x.Id == id);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (!existeCalificacion)
+            var calificacionExistente = await _context.Calificacions.FindAsync(id);
+            if (calificacionExistente == null)
+                return NotFound("La calificación no existe.");
+
+            // Solo el propietario o administrador puede modificar
+            if (rol != "ADMINISTRADOR" && calificacionExistente.UsuarioId != userId)
+                return Forbid("No tienes permiso para modificar esta calificación.");
+
+            // Verificar que el nuevo UsuarioId (si cambia) exista
+            if (calificacionExistente.UsuarioId != calificacionCreaDTO.UsuarioId)
             {
-                return NotFound(
-                    "La calificación no existe.");
+                var existeUsuario = await _context.Usuarios.AnyAsync(u => u.Id == calificacionCreaDTO.UsuarioId);
+                if (!existeUsuario)
+                    return BadRequest("El usuario no existe.");
             }
 
-            // validar usuario
-            var existeUsuario =
-                await _context.Usuarios
-                .AnyAsync(x =>
-                    x.Id ==
-                    calificacionCreaDTO.UsuarioId);
-
-            if (!existeUsuario)
-            {
-                return BadRequest(
-                    "El usuario no existe.");
-            }
-
-            var calificacion =
-                _mapper.Map<
-                    Calificacion>(
-                    calificacionCreaDTO);
-
-            calificacion.Id = id;
-
-            _context.Update(
-                calificacion);
-
-            await _context
-                .SaveChangesAsync();
-
+            _mapper.Map(calificacionCreaDTO, calificacionExistente);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        // DELETE: api/calificacion/5
+        // DELETE: api/Calificacion/5 (solo administrador)
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult>
-            Delete(int id)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> Delete(int id)
         {
-            var calificacion =
-                await _context
-                .Calificacions
-                .FindAsync(id);
-
+            var calificacion = await _context.Calificacions.FindAsync(id);
             if (calificacion == null)
-            {
-                return NotFound(
-                    "La calificación no existe.");
-            }
+                return NotFound("La calificación no existe.");
 
-            // validar pedidos asociados
-            var tienePedidos =
-                await _context.Pedidos
-                .AnyAsync(x =>
-                    x.CalificacionId
-                    == id);
-
+            // Verificar si hay pedidos asociados
+            var tienePedidos = await _context.Pedidos.AnyAsync(p => p.CalificacionId == id);
             if (tienePedidos)
-            {
-                return BadRequest(
-                    "No se puede eliminar porque tiene pedidos asociados.");
-            }
+                return BadRequest("No se puede eliminar la calificación porque tiene pedidos asociados.");
 
-            _context.Calificacions
-                .Remove(calificacion);
-
-            await _context
-                .SaveChangesAsync();
-
-            return Ok(
-                "Calificación eliminada correctamente.");
+            _context.Calificacions.Remove(calificacion);
+            await _context.SaveChangesAsync();
+            return Ok("Calificación eliminada correctamente.");
         }
     }
 }

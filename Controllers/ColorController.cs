@@ -35,17 +35,15 @@ namespace WebAppCourierTrack.Controllers
             var color = await _context.Colores.FindAsync(id);
             if (color == null)
                 return NotFound("No existe el color");
-
             return Ok(_mapper.Map<ColorDTO>(color));
         }
 
         // POST: api/Color (solo Administrador)
         [HttpPost]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<ColorDTO>> Post(ColorCreaDTO colorCreaDTO)
         {
-            // Verificar duplicado (nombre único)
-            var existe = await _context.Colores.AnyAsync(x => x.Nombre == colorCreaDTO.Nombre);
+            var existe = await _context.Colores.AnyAsync(c => c.Nombre == colorCreaDTO.Nombre);
             if (existe)
                 return BadRequest($"Ya existe un color con el nombre '{colorCreaDTO.Nombre}'.");
 
@@ -59,42 +57,38 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT: api/Color/5 (solo Administrador)
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Put(int id, ColorCreaDTO colorCreaDTO)
         {
             var color = await _context.Colores.FindAsync(id);
             if (color == null)
                 return NotFound($"No existe el color con Id {id}");
 
-            // Verificar duplicado excluyendo el propio registro
             var duplicado = await _context.Colores
-                .AnyAsync(x => x.Nombre == colorCreaDTO.Nombre && x.Id != id);
+                .AnyAsync(c => c.Nombre == colorCreaDTO.Nombre && c.Id != id);
             if (duplicado)
                 return Conflict("Ya existe otro color con ese nombre.");
 
             _mapper.Map(colorCreaDTO, color);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
         // DELETE: api/Color/5 (solo Administrador)
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Delete(int id)
         {
             var color = await _context.Colores.FindAsync(id);
             if (color == null)
                 return NotFound("No existe el color");
 
-            // Verificar si hay vehículos asociados
             var tieneVehiculo = await _context.Vehiculos.AnyAsync(v => v.ColorId == id);
             if (tieneVehiculo)
                 return BadRequest("No se puede eliminar el color porque hay vehículos asociados.");
 
             _context.Colores.Remove(color);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
     }
