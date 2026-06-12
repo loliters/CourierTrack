@@ -1,16 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebAppCourierTrack.Entidades
+namespace WebAppCourierTrack.DTO
 {
-    public class TipoVehiculo
+    public class MetodoPagoCreaDTO
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         [MaxLength(30, ErrorMessage = "El nombre no puede superar los 30 caracteres")]
         public string Nombre { get; set; }
-        // Relación con pedidos
-        public List<Pedido> Pedidos { get; set; }
     }
 }
