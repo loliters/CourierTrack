@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.DTO;
@@ -49,6 +50,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST
         [HttpPost]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Post(
             [FromBody] ClienteCreaDTO clienteCreaDTO)
         {
@@ -122,8 +124,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (!existeTipoCliente)
             {
-                return BadRequest(
-                    "El tipo de cliente no existe.");
+                return BadRequest( "El tipo de cliente no existe.");
             }
 
             var cliente =
@@ -146,6 +147,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Put(
             int id,
             ClienteCreaDTO clienteCreaDTO)
@@ -188,6 +190,7 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE: api/cliente/5
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Delete(int id)
         {
             var cliente =

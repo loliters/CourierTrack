@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.DTO;
@@ -45,6 +46,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST
         [HttpPost]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Post(
             [FromBody] GeneroCreaDTO generoCreaDTO)
         {
@@ -72,6 +74,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Put(
             int id,
             GeneroCreaDTO generoCreaDTO)
@@ -93,6 +96,7 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Delete(int id)
         {
             var genero = await _context.Generos

@@ -148,7 +148,7 @@ namespace WebAppCourierTrack.Controllers
             return NoContent();
         }
 
-        // DELETE: api/calificacion/5
+        // DELETE
         [HttpDelete("{id:int}")]
         public async Task<IActionResult>
             Delete(int id)

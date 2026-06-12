@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.DTO;
@@ -58,6 +59,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST
         [HttpPost]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Post(
             [FromBody]
             ClienteJuridicoCreaDTO
@@ -72,8 +74,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (!existeCliente)
             {
-                return BadRequest(
-                    "El cliente no existe.");
+                return BadRequest("El cliente no existe.");
             }
 
             // validar relación 1:1
@@ -85,8 +86,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (clienteYaAsignado)
             {
-                return BadRequest(
-                    "Ese cliente ya está asignado a un cliente jurídico.");
+                return BadRequest( "Ese cliente ya está asignado a un cliente jurídico.");
             }
 
             // validar NIT repetido
@@ -98,8 +98,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (existeNit)
             {
-                return BadRequest(
-                    "Ya existe un cliente jurídico con ese NIT.");
+                return BadRequest( "Ya existe un cliente jurídico con ese NIT.");
             }
 
             var clienteJuridico =
@@ -116,8 +115,7 @@ namespace WebAppCourierTrack.Controllers
                     ClienteJuridicoDTO>(
                     clienteJuridico);
 
-            return CreatedAtRoute(
-                "ObtenerClienteJuridico",
+            return CreatedAtRoute("ObtenerClienteJuridico",
                 new
                 {
                     id = clienteJuridico.Id
@@ -127,6 +125,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Put(
             int id,
             ClienteJuridicoCreaDTO
@@ -139,8 +138,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (!existeClienteJuridico)
             {
-                return NotFound(
-                    "El cliente jurídico no existe.");
+                return NotFound( "El cliente jurídico no existe.");
             }
 
             // validar cliente 1:1
@@ -153,8 +151,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (clienteYaAsignado)
             {
-                return BadRequest(
-                    "Ese cliente ya pertenece a otro cliente jurídico.");
+                return BadRequest( "Ese cliente ya pertenece a otro cliente jurídico.");
             }
 
             // validar NIT repetido
@@ -167,8 +164,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (existeNit)
             {
-                return BadRequest(
-                    "Ya existe un cliente jurídico con ese NIT.");
+                return BadRequest( "Ya existe un cliente jurídico con ese NIT.");
             }
 
             var clienteJuridico =
@@ -189,6 +185,7 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult>
             Delete(int id)
         {
@@ -199,8 +196,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (clienteJuridico == null)
             {
-                return NotFound(
-                    "El cliente jurídico no existe.");
+                return NotFound( "El cliente jurídico no existe.");
             }
 
             _context.ClientesJuridicos
@@ -209,8 +205,7 @@ namespace WebAppCourierTrack.Controllers
             await _context
                 .SaveChangesAsync();
 
-            return Ok(
-                "Cliente jurídico eliminado correctamente.");
+            return Ok( "Cliente jurídico eliminado correctamente.");
         }
     }
 }

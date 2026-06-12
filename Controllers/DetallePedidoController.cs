@@ -42,7 +42,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST: api/DetallePedido (solo Administrador)
         [HttpPost]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<DetallePedidoDTO>> Post(DetallePedidoCreaDTO detallePedidoCreaDTO)
         {
             // Verificar que la DireccionOrigen exista
@@ -65,7 +65,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT: api/DetallePedido/5 (solo Administrador)
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Put(int id, DetallePedidoCreaDTO detallePedidoCreaDTO)
         {
             var detalle = await _context.DetallePedidos.FindAsync(id);
@@ -95,7 +95,7 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE: api/DetallePedido/5 (solo Administrador)
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Delete(int id)
         {
             var detalle = await _context.DetallePedidos.FindAsync(id);

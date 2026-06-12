@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.DTO;
@@ -80,28 +81,16 @@ namespace WebAppCourierTrack.Controllers
 
         // POST
         [HttpPost]
-        public async Task<
-            ActionResult>
-            Post(
-            [FromBody]
-            PedidoCreaDTO
-            pedidoDTO)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<ActionResult>Post( [FromBody] PedidoCreaDTO pedidoDTO)
         {
-            if (pedidoDTO
-                .EstadoIds ==
-                null)
+            if (pedidoDTO.EstadoIds == null)
             {
-                return BadRequest(
-                    "Debe asignar al menos un estado.");
+                return BadRequest( "Debe asignar al menos un estado.");
             }
 
             // validar estados
-            var estadoIds =
-                await _context
-                .Estados
-                .Where(x =>
-                    pedidoDTO
-                    .EstadoIds
+            var estadoIds = await _context.Estados.Where(x =>pedidoDTO.EstadoIds
                     .Contains(x.Id))
                 .Select(x =>
                     x.Id)
@@ -111,26 +100,16 @@ namespace WebAppCourierTrack.Controllers
                 != pedidoDTO
                 .EstadoIds.Count)
             {
-                return BadRequest(
-                    "Se ingresó un estado que no existe.");
+                return BadRequest( "Se ingresó un estado que no existe.");
             }
 
-            var pedido =
-                _mapper.Map<
-                    Pedido>(
-                    pedidoDTO);
+            var pedido = _mapper.Map<Pedido>(pedidoDTO);
 
-            _context
-                .Pedidos
-                .Add(pedido);
+            _context.Pedidos.Add(pedido);
 
-            await _context
-                .SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-            var pedidoMap =
-                _mapper.Map<
-                    PedidoDTO>(
-                    pedido);
+            var pedidoMap = _mapper.Map<PedidoDTO>(pedido);
 
             return CreatedAtRoute(
                 "ObtenerPedido",
@@ -144,6 +123,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<
             ActionResult>
             Put(
@@ -162,18 +142,12 @@ namespace WebAppCourierTrack.Controllers
 
             if (pedido == null)
             {
-                return NotFound(
-                    "Pedido no existe");
+                return NotFound("Pedido no existe");
             }
 
-            pedido =
-                _mapper.Map(
-                    pedidoDTO,
-                    pedido);
+            pedido = _mapper.Map( pedidoDTO,pedido);
 
-            _context
-                .Pedidos
-                .Update(pedido);
+            _context.Pedidos.Update(pedido);
 
             await _context
                 .SaveChangesAsync();
@@ -183,15 +157,12 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<
             ActionResult>
             Delete(int id)
         {
-            var existe =
-                await _context
-                .Pedidos
-                .AnyAsync(x =>
-                    x.Id == id);
+            var existe =await _context.Pedidos .AnyAsync(x =>x.Id == id);
 
             if (!existe)
             {
@@ -199,13 +170,7 @@ namespace WebAppCourierTrack.Controllers
                     "Pedido no existe");
             }
 
-            _context
-                .Pedidos
-                .Remove(
-                    new Pedido
-                    {
-                        Id = id
-                    });
+            _context.Pedidos.Remove(new Pedido{Id = id});
 
             await _context
                 .SaveChangesAsync();

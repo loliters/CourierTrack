@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.DTO;
@@ -40,9 +41,8 @@ namespace WebAppCourierTrack.Controllers
                 (estados);
         }
 
-        [HttpGet("{id:int}",
-            Name =
-            "ObtenerEstado")]
+        [HttpGet("{id:int}",Name = "ObtenerEstado")]
+
         public async Task<
             ActionResult<
             EstadoConPedidosDTO>>

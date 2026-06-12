@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.DTO;
@@ -58,6 +59,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST
         [HttpPost]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Post(
             [FromBody]
             ClienteNaturalCreaDTO
@@ -72,8 +74,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (!existeGenero)
             {
-                return BadRequest(
-                    "El género no existe.");
+                return BadRequest("El género no existe.");
             }
 
             // validar cliente
@@ -85,8 +86,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (!existeCliente)
             {
-                return BadRequest(
-                    "El cliente no existe.");
+                return BadRequest("El cliente no existe.");
             }
 
             // validar cliente no usado (1:1)
@@ -98,8 +98,7 @@ namespace WebAppCourierTrack.Controllers
 
             if (clienteYaAsignado)
             {
-                return BadRequest(
-                    "Ese cliente ya está asignado a un cliente natural.");
+                return BadRequest("Ese cliente ya está asignado a un cliente natural.");
             }
 
             var clienteNatural =
@@ -127,6 +126,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Put(
             int id,
             ClienteNaturalCreaDTO
@@ -175,6 +175,7 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE: api/clientenatural/5
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult>
             Delete(int id)
         {

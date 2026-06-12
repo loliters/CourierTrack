@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.DTO;
@@ -38,6 +39,7 @@ namespace WebAppCourierTrack.Controllers
         // GET
         [HttpGet("{id:int}",
             Name = "ObtenerDireccionDestino")]
+
         public async Task<ActionResult<
             DireccionDestinoDTO>> Get(int id)
         {
@@ -59,6 +61,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST
         [HttpPost]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Post(
             [FromBody]
             DireccionDestinoCreaDTO
@@ -103,6 +106,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Put(
             int id,
             DireccionDestinoCreaDTO
@@ -150,6 +154,7 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult>
             Delete(int id)
         {
