@@ -18,5 +18,8 @@ namespace WebAppCourierTrack.DTO
 
         public string Password { get; set; }
 
+        //para mostrar el rol
+        public int RolId { get; set; }
+
     }
 }
