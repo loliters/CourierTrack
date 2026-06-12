@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppCourierTrack.DTO;
@@ -10,7 +9,8 @@ namespace WebAppCourierTrack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TipoVehiculoController : Controller
+    [Authorize] // Todos los endpoints requieren autenticación
+    public class TipoVehiculoController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
         private readonly IMapper _mapper;
@@ -20,7 +20,8 @@ namespace WebAppCourierTrack.Controllers
             _context = context;
             _mapper = mapper;
         }
-        // GET: api/TipoVehiculo (público)
+
+        // GET: api/TipoVehiculo (cualquier usuario autenticado)
         [HttpGet]
         public async Task<ActionResult<List<TipoVehiculoDTO>>> Get()
         {
@@ -28,27 +29,26 @@ namespace WebAppCourierTrack.Controllers
             return Ok(_mapper.Map<List<TipoVehiculoDTO>>(tipos));
         }
 
-        // GET: api/TipoVehiculo/5 (público)
+        // GET: api/TipoVehiculo/5
         [HttpGet("{id:int}", Name = "ObtenerTipoVehiculo")]
         public async Task<ActionResult<TipoVehiculoDTO>> Get(int id)
         {
             var tipo = await _context.TipoVehiculos.FindAsync(id);
             if (tipo == null)
                 return NotFound("No existe el tipo de vehículo");
-
             return Ok(_mapper.Map<TipoVehiculoDTO>(tipo));
         }
-        // POST: api/TipoVehiculo // Administrador
+
+        // POST: api/TipoVehiculo (solo administrador)
         [HttpPost]
-        [Authorize(Roles = "Administrador")]
-        public async Task<ActionResult<TipoVehiculoDTO>> Post(TipoVehiculoCreaDTO tipoVehiculoCreaDTO)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<ActionResult<TipoVehiculoDTO>> Post(TipoVehiculoCreaDTO dto)
         {
             // Verificar duplicado (nombre único)
-            var existe = await _context.TipoVehiculos.AnyAsync(x => x.Nombre == tipoVehiculoCreaDTO.Nombre);
-            if (existe)
-                return BadRequest($"Ya existe un tipo de vehículo con el nombre '{tipoVehiculoCreaDTO.Nombre}'.");
+            if (await _context.TipoVehiculos.AnyAsync(tv => tv.Nombre == dto.Nombre))
+                return BadRequest($"Ya existe un tipo de vehículo con el nombre '{dto.Nombre}'.");
 
-            var tipo = _mapper.Map<TipoVehiculo>(tipoVehiculoCreaDTO);
+            var tipo = _mapper.Map<TipoVehiculo>(dto);
             _context.TipoVehiculos.Add(tipo);
             await _context.SaveChangesAsync();
 
@@ -56,30 +56,27 @@ namespace WebAppCourierTrack.Controllers
             return CreatedAtRoute("ObtenerTipoVehiculo", new { id = tipo.Id }, tipoDTO);
         }
 
-        // PUT: api/TipoVehiculo/5 // Administrador
+        // PUT: api/TipoVehiculo/5 (solo administrador)
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Administrador")]
-        public async Task<IActionResult> Put(int id, TipoVehiculoCreaDTO tipoVehiculoCreaDTO)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> Put(int id, TipoVehiculoCreaDTO dto)
         {
             var tipo = await _context.TipoVehiculos.FindAsync(id);
             if (tipo == null)
                 return NotFound($"No existe el tipo de vehículo con Id {id}");
 
             // Verificar duplicado excluyendo el propio registro
-            var duplicado = await _context.TipoVehiculos
-                .AnyAsync(x => x.Nombre == tipoVehiculoCreaDTO.Nombre && x.Id != id);
-            if (duplicado)
+            if (await _context.TipoVehiculos.AnyAsync(tv => tv.Nombre == dto.Nombre && tv.Id != id))
                 return Conflict("Ya existe otro tipo de vehículo con ese nombre.");
 
-            _mapper.Map(tipoVehiculoCreaDTO, tipo);
+            _mapper.Map(dto, tipo);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
-        // DELETE: api/TipoVehiculo/5 // Administrador
+        // DELETE: api/TipoVehiculo/5 (solo administrador)
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Delete(int id)
         {
             var tipo = await _context.TipoVehiculos.FindAsync(id);
@@ -87,13 +84,11 @@ namespace WebAppCourierTrack.Controllers
                 return NotFound("No existe el tipo de vehículo");
 
             // Verificar si hay pedidos que usan este tipo de vehículo
-            var tienePedido = await _context.Pedidos.AnyAsync(p => p.TipoVehiculoId == id);
-            if (tienePedido)
+            if (await _context.Pedidos.AnyAsync(p => p.TipoVehiculoId == id))
                 return BadRequest("No se puede eliminar el tipo de vehículo porque hay pedidos asociados.");
 
             _context.TipoVehiculos.Remove(tipo);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
     }

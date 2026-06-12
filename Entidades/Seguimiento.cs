@@ -20,6 +20,7 @@ namespace WebAppCourierTrack.Entidades
 
         public Conductor Conductor { get; set; } 
         public Vehiculo  Vehiculo { get; set; }   
-        public Ubicacion Ubicacion { get; set; } 
+        public Ubicacion Ubicacion { get; set; }
+        public Pedido Pedido { get; set; }
     }
 }
