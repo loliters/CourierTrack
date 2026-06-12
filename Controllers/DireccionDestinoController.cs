@@ -52,12 +52,9 @@ namespace WebAppCourierTrack.Controllers
             return Ok(_mapper.Map<List<DireccionDestinoDTO>>(direcciones));
         }
 
-        // GET
-        [HttpGet("{id:int}",
-            Name = "ObtenerDireccionDestino")]
-
-        public async Task<ActionResult<
-            DireccionDestinoDTO>> Get(int id)
+        // GET: api/DireccionDestino/5 (permiso si está relacionada con el usuario o es admin)
+        [HttpGet("{id:int}", Name = "ObtenerDireccionDestino")]
+        public async Task<ActionResult<DireccionDestinoDTO>> Get(int id)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var rol = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -82,11 +79,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST: api/DireccionDestino (cualquier usuario autenticado puede crear)
         [HttpPost]
-        [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult> Post(
-            [FromBody]
-            DireccionDestinoCreaDTO
-            direccionDestinoCreaDTO)
+        public async Task<ActionResult<DireccionDestinoDTO>> Post(DireccionDestinoCreaDTO dto)
         {
             if (!await _context.Ubicaciones.AnyAsync(u => u.Id == dto.UbicacionId))
                 return BadRequest("La ubicación no existe.");
@@ -102,19 +95,10 @@ namespace WebAppCourierTrack.Controllers
         // PUT: api/DireccionDestino/5 (solo administrador)
         [HttpPut("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult> Put(
-            int id,
-            DireccionDestinoCreaDTO
-            direccionDestinoCreaDTO)
+        public async Task<IActionResult> Put(int id, DireccionDestinoCreaDTO dto)
         {
-            var existeDireccion =
-                await _context
-                .DireccionesDestinos
-                .AnyAsync(x =>
-                    x.Id == id);
-
-            if (!existeDireccion)
-            {
+            var direccion = await _context.DireccionesDestinos.FindAsync(id);
+            if (direccion == null)
                 return NotFound("La dirección destino no existe.");
 
             if (!await _context.Ubicaciones.AnyAsync(u => u.Id == dto.UbicacionId))
@@ -128,8 +112,7 @@ namespace WebAppCourierTrack.Controllers
         // DELETE: api/DireccionDestino/5 (solo administrador)
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<IActionResult>
-            Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var direccion = await _context.DireccionesDestinos.FindAsync(id);
             if (direccion == null)

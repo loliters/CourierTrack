@@ -31,5 +31,6 @@ namespace WebAppCourierTrack.Entidades
         //propiedades de navegacion
 
         public MetodoPago MetodoPago { get; set; } = null!;
+        public Pedido Pedido { get; set; } = null!;
     }
 }

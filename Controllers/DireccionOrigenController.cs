@@ -79,11 +79,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST: api/DireccionOrigen (cualquier usuario autenticado puede crear)
         [HttpPost]
-        [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult> Post(
-            [FromBody]
-            DireccionOrigenCreaDTO
-            direccionOrigenCreaDTO)
+        public async Task<ActionResult<DireccionOrigenDTO>> Post(DireccionOrigenCreaDTO dto)
         {
             // Validar ubicación
             if (!await _context.Ubicaciones.AnyAsync(u => u.Id == dto.UbicacionId))
@@ -93,62 +89,18 @@ namespace WebAppCourierTrack.Controllers
             _context.DireccionesOrigenes.Add(direccion);
             await _context.SaveChangesAsync();
 
-            var direccionDTO =
-                _mapper.Map<
-                    DireccionOrigenDTO>(
-                    direccion);
-
-            return CreatedAtRoute("ObtenerDireccionOrigen",
-                new
-                {
-                    id = direccion.Id
-                },
-                direccionDTO);
+            var direccionDTO = _mapper.Map<DireccionOrigenDTO>(direccion);
+            return CreatedAtRoute("ObtenerDireccionOrigen", new { id = direccion.Id }, direccionDTO);
         }
 
         // PUT: api/DireccionOrigen/5 (solo administrador)
         [HttpPut("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult> Put(
-            int id,
-            DireccionOrigenCreaDTO
-            direccionOrigenCreaDTO)
+        public async Task<IActionResult> Put(int id, DireccionOrigenCreaDTO dto)
         {
-            var existeDireccion =
-                await _context
-                .DireccionesOrigenes
-                .AnyAsync(x =>
-                    x.Id == id);
-
-            if (!existeDireccion)
-            {
-                return NotFound(
-                    "La dirección origen no existe.");
-            }
-
-            // validar ubicación
-            var existeUbicacion =
-                await _context.Ubicaciones
-                .AnyAsync(x =>
-                    x.Id ==
-                    direccionOrigenCreaDTO
-                    .UbicacionId);
-
-            if (!existeUbicacion)
-            {
-                return BadRequest(
-                    "La ubicación no existe.");
-            }
-
-            var direccion =
-                _mapper.Map<
-                    DireccionOrigen>(
-                    direccionOrigenCreaDTO);
-
-            direccion.Id = id;
-
-            _context.Update(
-                direccion);
+            var direccion = await _context.DireccionesOrigenes.FindAsync(id);
+            if (direccion == null)
+                return NotFound("La dirección origen no existe.");
 
             if (!await _context.Ubicaciones.AnyAsync(u => u.Id == dto.UbicacionId))
                 return BadRequest("La ubicación no existe.");
@@ -161,8 +113,7 @@ namespace WebAppCourierTrack.Controllers
         // DELETE: api/DireccionOrigen/5 (solo administrador)
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<IActionResult>
-            Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var direccion = await _context.DireccionesOrigenes.FindAsync(id);
             if (direccion == null)

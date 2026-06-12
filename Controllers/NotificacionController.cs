@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebAppCourierTrack.DTO;
 using WebAppCourierTrack.Entidades;
 
@@ -10,7 +10,8 @@ namespace WebAppCourierTrack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class NotificacionController : Controller
+    [Authorize] // Todos los endpoints requieren autenticación
+    public class NotificacionController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
         private readonly IMapper _mapper;
@@ -21,44 +22,54 @@ namespace WebAppCourierTrack.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/Notificacion (público)
+        // GET: api/Notificacion (solo notificaciones del usuario autenticado)
         [HttpGet]
         public async Task<ActionResult<List<NotificacionDTO>>> Get()
         {
-            var notificaciones = await _context.Notificaciones.ToListAsync();
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            IQueryable<Notificacion> query = _context.Notificaciones;
+
+            if (rol != "ADMINISTRADOR")
+                query = query.Where(n => n.UsuarioId == userId);
+
+            var notificaciones = await query.ToListAsync();
             return Ok(_mapper.Map<List<NotificacionDTO>>(notificaciones));
         }
 
-        // GET: api/Notificacion/5 (público)
+        // GET: api/Notificacion/5
         [HttpGet("{id:int}", Name = "ObtenerNotificacion")]
         public async Task<ActionResult<NotificacionDTO>> Get(int id)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+
             var notificacion = await _context.Notificaciones.FindAsync(id);
             if (notificacion == null)
                 return NotFound("No existe la notificación");
 
+            if (rol != "ADMINISTRADOR" && notificacion.UsuarioId != userId)
+                return Forbid("No tienes permiso para ver esta notificación.");
+
             return Ok(_mapper.Map<NotificacionDTO>(notificacion));
         }
 
-        // POST: api/Notificacion (solo Administrador)
+        // POST: api/Notificacion (solo administrador)
         [HttpPost]
-        [Authorize(Roles = "Administrador")]
-        public async Task<ActionResult<NotificacionDTO>> Post(NotificacionCreaDTO notificacionCreaDTO)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<ActionResult<NotificacionDTO>> Post(NotificacionCreaDTO dto)
         {
-            // Verificar que el Usuario exista
-            var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Id == notificacionCreaDTO.UsuarioId);
-            if (!usuarioExiste)
-                return BadRequest($"El usuario con Id {notificacionCreaDTO.UsuarioId} no existe.");
+            // Verificar que el usuario exista
+            if (!await _context.Usuarios.AnyAsync(u => u.Id == dto.UsuarioId))
+                return BadRequest($"El usuario con Id {dto.UsuarioId} no existe.");
 
-            // Verificar que el Pedido exista
-            var pedidoExiste = await _context.Pedidos.AnyAsync(p => p.Id == notificacionCreaDTO.PedidoId);
-            if (!pedidoExiste)
-                return BadRequest($"El pedido con Id {notificacionCreaDTO.PedidoId} no existe.");
+            // Verificar que el pedido exista
+            if (!await _context.Pedidos.AnyAsync(p => p.Id == dto.PedidoId))
+                return BadRequest($"El pedido con Id {dto.PedidoId} no existe.");
 
-            // Si no se envía el valor de Leida, por defecto false
-            var notificacion = _mapper.Map<Notificacion>(notificacionCreaDTO);
-            if (notificacionCreaDTO.Leida == null) // el DTO tiene bool, no nullable, pero si el front no lo envía será false.
-                notificacion.Leida = false;
+            var notificacion = _mapper.Map<Notificacion>(dto);
+            notificacion.Leida = false; // Por defecto no leída
 
             _context.Notificaciones.Add(notificacion);
             await _context.SaveChangesAsync();
@@ -67,49 +78,44 @@ namespace WebAppCourierTrack.Controllers
             return CreatedAtRoute("ObtenerNotificacion", new { id = notificacion.Id }, notificacionDTO);
         }
 
-        // PUT: api/Notificacion/5 (solo Administrador)
+        // PUT: api/Notificacion/5 (solo administrador)
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Administrador")]
-        public async Task<IActionResult> Put(int id, NotificacionCreaDTO notificacionCreaDTO)
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<IActionResult> Put(int id, NotificacionCreaDTO dto)
         {
             var notificacion = await _context.Notificaciones.FindAsync(id);
             if (notificacion == null)
                 return NotFound($"No existe la notificación con Id {id}");
 
             // Validar FK si cambian
-            if (notificacion.UsuarioId != notificacionCreaDTO.UsuarioId)
+            if (notificacion.UsuarioId != dto.UsuarioId)
             {
-                var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Id == notificacionCreaDTO.UsuarioId);
-                if (!usuarioExiste)
-                    return BadRequest($"El usuario con Id {notificacionCreaDTO.UsuarioId} no existe.");
+                if (!await _context.Usuarios.AnyAsync(u => u.Id == dto.UsuarioId))
+                    return BadRequest($"El usuario con Id {dto.UsuarioId} no existe.");
             }
 
-            if (notificacion.PedidoId != notificacionCreaDTO.PedidoId)
+            if (notificacion.PedidoId != dto.PedidoId)
             {
-                var pedidoExiste = await _context.Pedidos.AnyAsync(p => p.Id == notificacionCreaDTO.PedidoId);
-                if (!pedidoExiste)
-                    return BadRequest($"El pedido con Id {notificacionCreaDTO.PedidoId} no existe.");
+                if (!await _context.Pedidos.AnyAsync(p => p.Id == dto.PedidoId))
+                    return BadRequest($"El pedido con Id {dto.PedidoId} no existe.");
             }
 
-            _mapper.Map(notificacionCreaDTO, notificacion);
+            _mapper.Map(dto, notificacion);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
-        // DELETE: api/Notificacion/5 (solo Administrador)
+        // DELETE: api/Notificacion/5 (solo administrador)
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Delete(int id)
         {
             var notificacion = await _context.Notificaciones.FindAsync(id);
             if (notificacion == null)
                 return NotFound("No existe la notificación");
 
-            // No hay dependencias, se puede eliminar directamente
             _context.Notificaciones.Remove(notificacion);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
     }

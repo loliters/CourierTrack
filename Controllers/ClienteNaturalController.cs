@@ -59,48 +59,22 @@ namespace WebAppCourierTrack.Controllers
         // POST: api/ClienteNatural (solo administrador)
         [HttpPost]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult> Post(
-            [FromBody]
-            ClienteNaturalCreaDTO
-            clienteNaturalCreaDTO)
+        public async Task<ActionResult<ClienteNaturalDTO>> Post(ClienteNaturalCreaDTO dto)
         {
             // Validar género
             if (!await _context.Generos.AnyAsync(g => g.Id == dto.GeneroId))
                 return BadRequest("El género no existe.");
 
-            if (!existeGenero)
-            {
-                return BadRequest("El género no existe.");
-            }
+            // Validar que el cliente base exista
+            if (!await _context.Clientes.AnyAsync(c => c.Id == dto.ClienteId))
+                return BadRequest("El cliente no existe.");
 
             // Validar relación 1:1 (cliente no asignado a otro natural)
             if (await _context.ClientesNatural.AnyAsync(cn => cn.ClienteId == dto.ClienteId))
                 return BadRequest("Ese cliente ya está asignado a un cliente natural.");
 
-            if (!existeCliente)
-            {
-                return BadRequest("El cliente no existe.");
-            }
-
-            // validar cliente no usado (1:1)
-            var clienteYaAsignado =
-                await _context.ClientesNatural
-                .AnyAsync(x =>
-                    x.ClienteId ==
-                    clienteNaturalCreaDTO.ClienteId);
-
-            if (clienteYaAsignado)
-            {
-                return BadRequest("Ese cliente ya está asignado a un cliente natural.");
-            }
-
-            var clienteNatural =
-                _mapper.Map<
-                    ClienteNatural>(
-                    clienteNaturalCreaDTO);
-
-            _context.Add(clienteNatural);
-
+            var clienteNatural = _mapper.Map<ClienteNatural>(dto);
+            _context.ClientesNatural.Add(clienteNatural);
             await _context.SaveChangesAsync();
 
             var resultDto = _mapper.Map<ClienteNaturalDTO>(clienteNatural);
@@ -110,42 +84,11 @@ namespace WebAppCourierTrack.Controllers
         // PUT: api/ClienteNatural/5 (solo administrador)
         [HttpPut("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult> Put(
-            int id,
-            ClienteNaturalCreaDTO
-            clienteNaturalCreaDTO)
+        public async Task<IActionResult> Put(int id, ClienteNaturalCreaDTO dto)
         {
-            var existeClienteNatural =
-                await _context.ClientesNatural
-                .AnyAsync(x =>
-                    x.Id == id);
-
-            if (!existeClienteNatural)
-            {
-                return NotFound(
-                    "El cliente natural no existe.");
-            }
-
-            // validar cliente 1:1
-            var clienteYaAsignado =
-                await _context.ClientesNatural
-                .AnyAsync(x =>
-                    x.ClienteId ==
-                    clienteNaturalCreaDTO.ClienteId
-                    && x.Id != id);
-
-            if (clienteYaAsignado)
-            {
-                return BadRequest(
-                    "Ese cliente ya pertenece a otro cliente natural.");
-            }
-
-            var clienteNatural =
-                _mapper.Map<
-                    ClienteNatural>(
-                    clienteNaturalCreaDTO);
-
-            clienteNatural.Id = id;
+            var clienteNatural = await _context.ClientesNatural.FindAsync(id);
+            if (clienteNatural == null)
+                return NotFound("El cliente natural no existe.");
 
             // Validar que el cliente base exista
             if (!await _context.Clientes.AnyAsync(c => c.Id == dto.ClienteId))
@@ -163,8 +106,7 @@ namespace WebAppCourierTrack.Controllers
         // DELETE: api/ClienteNatural/5 (solo administrador)
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<IActionResult>
-            Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var clienteNatural = await _context.ClientesNatural.FindAsync(id);
             if (clienteNatural == null)
