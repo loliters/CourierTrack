@@ -42,7 +42,8 @@ namespace WebAppCourierTrack.Controllers
         // POST: api/EstadoPago (solo administrador)
         [HttpPost]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult<EstadoPagoDTO>> Post(EstadoPagoCreaDTO dto)
+        public async Task<ActionResult> Post(
+            [FromBody] EstadoPagoCreaDTO estadoPagoCreaDTO)
         {
             // Verificar duplicado (nombre único)
             if (await _context.EstadoPagos.AnyAsync(ep => ep.Nombre == dto.Nombre))
@@ -59,11 +60,25 @@ namespace WebAppCourierTrack.Controllers
         // PUT: api/EstadoPago/5 (solo administrador)
         [HttpPut("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<IActionResult> Put(int id, EstadoPagoCreaDTO dto)
+        public async Task<ActionResult> Put(
+            int id,
+            EstadoPagoCreaDTO estadoPagoCreaDTO)
         {
-            var estadoPago = await _context.EstadoPagos.FindAsync(id);
-            if (estadoPago == null)
-                return NotFound("No existe el estado de pago.");
+            var existeEstadoPago =
+                await _context.EstadoPagos
+                .AnyAsync(x => x.Id == id);
+
+            if (!existeEstadoPago)
+            {
+                return NotFound(
+                    "No existe el estado de pago.");
+            }
+
+            var estadoPago =
+                _mapper.Map<EstadoPago>(
+                    estadoPagoCreaDTO);
+
+            estadoPago.Id = id;
 
             // Verificar duplicado excluyendo el propio registro
             if (await _context.EstadoPagos.AnyAsync(ep => ep.Nombre == dto.Nombre && ep.Id != id))

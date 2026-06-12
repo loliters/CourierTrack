@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +45,7 @@ namespace WebAppCourierTrack.Controllers
 
         // POST: api/rol
         [HttpPost]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Post([FromBody] RolCreaDTO rolCreaDTO)
         {
             var existe = await _context.Roles
@@ -70,6 +72,7 @@ namespace WebAppCourierTrack.Controllers
 
         // PUT: api/rol/5
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult> Put(
             int id,
             RolCreaDTO rolCreaDTO)
@@ -91,6 +94,7 @@ namespace WebAppCourierTrack.Controllers
 
         // DELETE: api/rol/5
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<IActionResult> Delete(int id)
         {
             var rol = await _context.Roles.FindAsync(id);

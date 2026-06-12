@@ -59,36 +59,111 @@ namespace WebAppCourierTrack.Controllers
         // POST: api/ClienteJuridico (solo administrador)
         [HttpPost]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult<ClienteJuridicoDTO>> Post(ClienteJuridicoCreaDTO dto)
+        public async Task<ActionResult> Post(
+            [FromBody]
+            ClienteJuridicoCreaDTO
+            clienteJuridicoCreaDTO)
         {
             // Validar que el cliente base exista
             if (!await _context.Clientes.AnyAsync(c => c.Id == dto.ClienteId))
                 return BadRequest("El cliente no existe.");
 
-            // Validar relación 1:1 (cliente no asignado a otro jurídico)
-            if (await _context.ClientesJuridicos.AnyAsync(cj => cj.ClienteId == dto.ClienteId))
-                return BadRequest("Ese cliente ya está asignado a un cliente jurídico.");
+            if (!existeCliente)
+            {
+                return BadRequest("El cliente no existe.");
+            }
 
             // Validar NIT único
             if (await _context.ClientesJuridicos.AnyAsync(cj => cj.Nit == dto.Nit))
                 return BadRequest("Ya existe un cliente jurídico con ese NIT.");
 
-            var clienteJuridico = _mapper.Map<ClienteJuridico>(dto);
-            _context.ClientesJuridicos.Add(clienteJuridico);
+            if (clienteYaAsignado)
+            {
+                return BadRequest( "Ese cliente ya está asignado a un cliente jurídico.");
+            }
+
+            // validar NIT repetido
+            var existeNit =
+                await _context.ClientesJuridicos
+                .AnyAsync(x =>
+                    x.Nit ==
+                    clienteJuridicoCreaDTO.Nit);
+
+            if (existeNit)
+            {
+                return BadRequest( "Ya existe un cliente jurídico con ese NIT.");
+            }
+
+            var clienteJuridico =
+                _mapper.Map<
+                    ClienteJuridico>(
+                    clienteJuridicoCreaDTO);
+
+            _context.Add(clienteJuridico);
+
             await _context.SaveChangesAsync();
 
-            var resultDto = _mapper.Map<ClienteJuridicoDTO>(clienteJuridico);
-            return CreatedAtRoute("ObtenerClienteJuridico", new { id = clienteJuridico.Id }, resultDto);
+            var clienteJuridicoDTO =
+                _mapper.Map<
+                    ClienteJuridicoDTO>(
+                    clienteJuridico);
+
+            return CreatedAtRoute("ObtenerClienteJuridico",
+                new
+                {
+                    id = clienteJuridico.Id
+                },
+                clienteJuridicoDTO);
         }
 
         // PUT: api/ClienteJuridico/5 (solo administrador)
         [HttpPut("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<IActionResult> Put(int id, ClienteJuridicoCreaDTO dto)
+        public async Task<ActionResult> Put(
+            int id,
+            ClienteJuridicoCreaDTO
+            clienteJuridicoCreaDTO)
         {
-            var clienteJuridico = await _context.ClientesJuridicos.FindAsync(id);
-            if (clienteJuridico == null)
-                return NotFound("El cliente jurídico no existe.");
+            var existeClienteJuridico =
+                await _context.ClientesJuridicos
+                .AnyAsync(x =>
+                    x.Id == id);
+
+            if (!existeClienteJuridico)
+            {
+                return NotFound( "El cliente jurídico no existe.");
+            }
+
+            // validar cliente 1:1
+            var clienteYaAsignado =
+                await _context.ClientesJuridicos
+                .AnyAsync(x =>
+                    x.ClienteId ==
+                    clienteJuridicoCreaDTO.ClienteId
+                    && x.Id != id);
+
+            if (clienteYaAsignado)
+            {
+                return BadRequest( "Ese cliente ya pertenece a otro cliente jurídico.");
+            }
+
+            // validar NIT repetido
+            var existeNit =
+                await _context.ClientesJuridicos
+                .AnyAsync(x =>
+                    x.Nit ==
+                    clienteJuridicoCreaDTO.Nit
+                    && x.Id != id);
+
+            if (existeNit)
+            {
+                return BadRequest( "Ya existe un cliente jurídico con ese NIT.");
+            }
+
+            var clienteJuridico =
+                _mapper.Map<
+                    ClienteJuridico>(
+                    clienteJuridicoCreaDTO);
 
             // Validar que el cliente base exista
             if (!await _context.Clientes.AnyAsync(c => c.Id == dto.ClienteId))
@@ -110,15 +185,22 @@ namespace WebAppCourierTrack.Controllers
         // DELETE: api/ClienteJuridico/5 (solo administrador)
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult>
+            Delete(int id)
         {
             var clienteJuridico = await _context.ClientesJuridicos.FindAsync(id);
             if (clienteJuridico == null)
-                return NotFound("El cliente jurídico no existe.");
+            {
+                return NotFound( "El cliente jurídico no existe.");
+            }
 
-            _context.ClientesJuridicos.Remove(clienteJuridico);
-            await _context.SaveChangesAsync();
-            return Ok("Cliente jurídico eliminado correctamente.");
+            _context.ClientesJuridicos
+                .Remove(clienteJuridico);
+
+            await _context
+                .SaveChangesAsync();
+
+            return Ok( "Cliente jurídico eliminado correctamente.");
         }
     }
 }

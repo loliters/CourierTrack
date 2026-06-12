@@ -55,7 +55,8 @@ namespace WebAppCourierTrack.Controllers
         // POST: api/Cliente (solo administrador)
         [HttpPost]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult<ClienteDTO>> Post(ClienteCreaDTO clienteCreaDTO)
+        public async Task<ActionResult> Post(
+            [FromBody] ClienteCreaDTO clienteCreaDTO)
         {
             // Documento repetido
             if (await _context.Clientes.AnyAsync(c => c.NroDocumento == clienteCreaDTO.NroDocumento))
@@ -82,8 +83,33 @@ namespace WebAppCourierTrack.Controllers
             if (!await _context.TipoClientes.AnyAsync(tc => tc.Id == clienteCreaDTO.TipoClienteId))
                 return BadRequest("El tipo de cliente no existe.");
 
-            var cliente = _mapper.Map<Cliente>(clienteCreaDTO);
-            _context.Clientes.Add(cliente);
+            // validar usuario no usado (1:1)
+            var usuarioYaAsignado =
+                await _context.Clientes
+                .AnyAsync(x =>
+                    x.UsuarioId ==
+                    clienteCreaDTO.UsuarioId);
+
+            if (usuarioYaAsignado)
+            {
+                return BadRequest(
+                    "Ese usuario ya está asignado a otro cliente.");
+            }
+
+            // validar tipo cliente
+            var existeTipoCliente = await _context.TipoClientes.AnyAsync(x => x.Id == clienteCreaDTO.TipoClienteId);
+
+            if (!existeTipoCliente)
+            {
+                return BadRequest( "El tipo de cliente no existe.");
+            }
+
+            var cliente =
+                _mapper.Map<Cliente>(
+                    clienteCreaDTO);
+
+            _context.Add(cliente);
+
             await _context.SaveChangesAsync();
 
             var clienteDTO = _mapper.Map<ClienteDTO>(cliente);
@@ -93,11 +119,27 @@ namespace WebAppCourierTrack.Controllers
         // PUT: api/Cliente/5 (solo administrador)
         [HttpPut("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<IActionResult> Put(int id, ClienteCreaDTO clienteCreaDTO)
+        public async Task<ActionResult> Put(
+            int id,
+            ClienteCreaDTO clienteCreaDTO)
         {
-            var clienteExistente = await _context.Clientes.FindAsync(id);
-            if (clienteExistente == null)
-                return NotFound("El cliente no existe.");
+            var existeCliente =
+                await _context.Clientes
+                .AnyAsync(x => x.Id == id);
+
+            if (!existeCliente)
+            {
+                return NotFound(
+                    "El cliente no existe.");
+            }
+
+            // validar usuario 1:1
+            var usuarioYaAsignado =
+                await _context.Clientes
+                .AnyAsync(x =>
+                    x.UsuarioId ==
+                    clienteCreaDTO.UsuarioId
+                    && x.Id != id);
 
             // Verificar que el usuario no esté asignado a otro cliente (excepto el actual)
             if (await _context.Clientes.AnyAsync(c => c.UsuarioId == clienteCreaDTO.UsuarioId && c.Id != id))

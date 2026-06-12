@@ -15,69 +15,113 @@ namespace WebAppCourierTrack.Controllers
         private readonly ApplicationDBContext _context;
         private readonly IMapper _mapper;
 
-        public EstadoController(ApplicationDBContext context, IMapper mapper)
+        public EstadoController(
+            ApplicationDBContext context,
+            IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        // GET: api/Estado (cualquier usuario autenticado)
+        // GET: api/Estado
+        // Público
         [HttpGet]
         public async Task<ActionResult<List<EstadoDTO>>> Get()
         {
-            var estados = await _context.Estados.ToListAsync();
-            return Ok(_mapper.Map<List<EstadoDTO>>(estados));
+            var estados = await _context
+                .Estados
+                .ToListAsync();
+
+            return _mapper.Map<List<EstadoDTO>>(estados);
         }
 
-        // GET: api/Estado/5
+        // GEt
         [HttpGet("{id:int}", Name = "ObtenerEstado")]
         public async Task<ActionResult<EstadoConPedidosDTO>> Get(int id)
         {
-            var estado = await _context.Estados
-                .Include(e => e.EstadosPedidos)
-                    .ThenInclude(ep => ep.Pedido)
-                .FirstOrDefaultAsync(e => e.Id == id);
+            var estado = await _context
+                .Estados
+                .Include(x => x.EstadosPedidos)
+                .ThenInclude(x => x.Pedido)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (estado == null)
                 return NotFound("Estado no encontrado");
 
-            return Ok(_mapper.Map<EstadoConPedidosDTO>(estado));
+            return _mapper.Map<EstadoConPedidosDTO>(estado);
         }
 
-        // POST: api/Estado (solo administrador)
+        // POST: api/Estado
+        // Solo Administrador
         [HttpPost]
-        [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<ActionResult<EstadoDTO>> Post(EstadoCreaDTO dto)
+        [Authorize(Roles = "Administrador")]
+        public async Task<ActionResult> Post(
+            [FromBody] EstadoCreaDTO estadoCreaDTO)
         {
-            // Verificar duplicado (nombre único)
-            if (await _context.Estados.AnyAsync(e => e.Nombre == dto.Nombre))
-                return BadRequest($"Ya existe un estado con el nombre '{dto.Nombre}'.");
+            var existe = await _context
+                .Estados
+                .AnyAsync(x => x.Nombre == estadoCreaDTO.Nombre);
 
-            var estado = _mapper.Map<Estado>(dto);
+            if (existe)
+                return BadRequest(
+                    $"Ya existe un estado con el nombre {estadoCreaDTO.Nombre}");
+
+            var estado = _mapper.Map<Estado>(estadoCreaDTO);
+
             _context.Estados.Add(estado);
             await _context.SaveChangesAsync();
 
             var estadoDTO = _mapper.Map<EstadoDTO>(estado);
-            return CreatedAtRoute("ObtenerEstado", new { id = estado.Id }, estadoDTO);
+
+            return CreatedAtRoute(
+                "ObtenerEstado",
+                new { id = estado.Id },
+                estadoDTO);
         }
 
-        // PUT: api/Estado/5 (solo administrador)
+        // PUT: api/Estado/5
+        // Solo Administrador
         [HttpPut("{id:int}")]
         [Authorize(Roles = "ADMINISTRADOR")]
-        public async Task<IActionResult> Put(int id, EstadoCreaDTO dto)
+        public async Task<ActionResult> Put(
+            int id,
+            [FromBody] EstadoCreaDTO estadoCreaDTO)
         {
-            var estado = await _context.Estados.FindAsync(id);
-            if (estado == null)
-                return NotFound($"No existe el estado con Id {id}");
+            var existeEstado = await _context
+                .Estados
+                .AnyAsync(x => x.Id == id);
 
-            // Verificar duplicado excluyendo el propio registro
-            if (await _context.Estados.AnyAsync(e => e.Nombre == dto.Nombre && e.Id != id))
-                return Conflict("Ya existe otro estado con ese nombre.");
+            if (!existeEstado)
+                return NotFound("El estado no existe");
 
-            _mapper.Map(dto, estado);
+            var duplicado = await _context
+                .Estados
+                .AnyAsync(x =>
+                    x.Nombre == estadoCreaDTO.Nombre &&
+                    x.Id != id);
+
+            if (duplicado)
+                return BadRequest(
+                    "Ya existe otro estado con ese nombre");
+
+            var estado = _mapper.Map<Estado>(estadoCreaDTO);
+            estado.Id = id;
+
+            _context.Update(estado);
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
+
+        // DELETE: api/Estado/5
+        // Solo Administrador
+        [HttpDelete("{id:int}")]
+        [Authorize(Roles = "ADMINISTRADOR")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var estado = await _context
+                .Estados
+                .FindAsync(id);
 
         // DELETE: api/Estado/5 (solo administrador)
         [HttpDelete("{id:int}")]
@@ -86,16 +130,22 @@ namespace WebAppCourierTrack.Controllers
         {
             var estado = await _context.Estados.FindAsync(id);
             if (estado == null)
-                return NotFound("No existe el estado");
+                return NotFound(
+                    "El estado no existe");
 
-            // Verificar si hay estados asociados en EstadoPedido
-            bool tieneRelaciones = await _context.EstadosPedidos.AnyAsync(ep => ep.EstadoId == id);
-            if (tieneRelaciones)
-                return BadRequest("No se puede eliminar el estado porque está siendo utilizado en pedidos.");
+            // Verificar si está relacionado con pedidos
+            var tienePedidos = await _context
+                .EstadosPedidos
+                .AnyAsync(x => x.EstadoId == id);
+
+            if (tienePedidos)
+                return BadRequest(
+                    "No se puede eliminar el estado porque tiene pedidos asociados");
 
             _context.Estados.Remove(estado);
             await _context.SaveChangesAsync();
-            return Ok("Estado eliminado correctamente.");
+
+            return NoContent();
         }
     }
 }
