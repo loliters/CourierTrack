@@ -38,5 +38,8 @@ namespace WebAppCourierTrack.Entidades
 
         // Relación con pedidos, navegacion
         public List<Pedido> Pedidos { get; set; }
+        public List<Calificacion> Calificaciones { get; set; } //= new();
+
     }
+    
 }

@@ -33,10 +33,9 @@ namespace WebAppCourierTrack.Entidades
         public int ClienteId { get; set; }
         public Cliente Cliente { get; set; }
 
-        // FK Calificacion (opcional)
-        public int? CalificacionId { get; set; }
-        public Calificacion? Calificacion { get; set; }
-
+        // FK Conductor
+        public int? ConductorId { get; set; }
+        public Conductor? Conductor { get; set; }
         // FK DetallePedido
         [Required(ErrorMessage = "El detalle del pedido es obligatorio")]
         public int DetallePedidoId { get; set; }
@@ -44,5 +43,8 @@ namespace WebAppCourierTrack.Entidades
 
         //nvegacion N:M, adición para el uso de tabla pivote
         public List<EstadoPedido> EstadosPedidos { get; set; }
+
+        //navegacion con calificacion
+        public Calificacion? Calificacion { get; set; }
     }
 }

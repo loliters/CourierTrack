@@ -447,22 +447,34 @@ namespace WebAppCourierTrack
 
             // Calificacion
             modelBuilder.Entity<Calificacion>()
-                .HasOne(c => c.Usuario)
-                .WithMany(u => u.Calificaciones)
-                .HasForeignKey(c => c.UsuarioId)
+                .HasOne(c => c.Cliente)
+                .WithMany(c => c.Calificaciones)
+                .HasForeignKey(c => c.ClienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Calificacion>()
+                .HasOne(c => c.Conductor)
+                .WithMany(c => c.Calificaciones)
+                .HasForeignKey(c => c.ConductorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Calificacion>()
+                .HasOne(c => c.Pedido)
+                .WithOne(p => p.Calificacion)
+                .HasForeignKey<Calificacion>(c => c.PedidoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Calificacion>().HasData(
-                 new Calificacion { Id = 1, Comentario = "Excelente servicio", Puntuacion = 5, Fecha = new DateTime(2025, 1, 10, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 3 },
-                 new Calificacion { Id = 2, Comentario = "Entrega rápida y segura", Puntuacion = 4, Fecha = new DateTime(2025, 1, 12, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 4 },
-                 new Calificacion { Id = 3, Comentario = "Buen trato del conductor", Puntuacion = 5, Fecha = new DateTime(2025, 1, 15, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 5 },
-                 new Calificacion { Id = 4, Comentario = "El pedido llegó tarde", Puntuacion = 3, Fecha = new DateTime(2025, 1, 18, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 6 },
-                 new Calificacion { Id = 5, Comentario = "Servicio aceptable", Puntuacion = 4, Fecha = new DateTime(2025, 1, 20, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 7 },
-                 new Calificacion { Id = 6, Comentario = "El paquete llegó en buen estado", Puntuacion = 5, Fecha = new DateTime(2025, 1, 22, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 8 },
-                 new Calificacion { Id = 7, Comentario = "Faltó comunicación durante la entrega", Puntuacion = 3, Fecha = new DateTime(2025, 1, 24, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 9 },
-                 new Calificacion { Id = 8, Comentario = "Muy recomendado", Puntuacion = 5, Fecha = new DateTime(2025, 1, 26, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 10 },
-                 new Calificacion { Id = 9, Comentario = "Buen servicio empresarial", Puntuacion = 4, Fecha = new DateTime(2025, 1, 28, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 11 },
-                 new Calificacion { Id = 10, Comentario = "Entrega satisfactoria", Puntuacion = 4, Fecha = new DateTime(2025, 1, 30, 0, 0, 0, DateTimeKind.Utc), UsuarioId = 12 }
+                new Calificacion { Id = 1, Comentario = "Excelente servicio", Puntuacion = 5, Fecha = new DateTime(2025, 1, 10, 0, 0, 0, DateTimeKind.Utc), PedidoId = 1, ClienteId = 1, ConductorId = 1 },
+                new Calificacion { Id = 2, Comentario = "Muy buen servicio", Puntuacion = 4, Fecha = new DateTime(2025, 1, 12, 0, 0, 0, DateTimeKind.Utc), PedidoId = 2, ClienteId = 2, ConductorId = 2 },
+                new Calificacion { Id = 3, Comentario = "Servicio aceptable", Puntuacion = 3, Fecha = new DateTime(2025, 1, 15, 0, 0, 0, DateTimeKind.Utc), PedidoId = 3, ClienteId = 3, ConductorId = 3 },
+                new Calificacion { Id = 4, Comentario = "Buen trato", Puntuacion = 4, Fecha = new DateTime(2025, 1, 18, 0, 0, 0, DateTimeKind.Utc), PedidoId = 4, ClienteId = 4, ConductorId = 4 },
+                new Calificacion { Id = 5, Comentario = "Entrega rápida", Puntuacion = 5, Fecha = new DateTime(2025, 1, 20, 0, 0, 0, DateTimeKind.Utc), PedidoId = 5, ClienteId = 5, ConductorId = 5 },
+                new Calificacion { Id = 6, Comentario = "Podría mejorar", Puntuacion = 3, Fecha = new DateTime(2025, 1, 22, 0, 0, 0, DateTimeKind.Utc), PedidoId = 6, ClienteId = 6, ConductorId = 6 },
+                new Calificacion { Id = 7, Comentario = "Muy satisfecho", Puntuacion = 5, Fecha = new DateTime(2025, 1, 24, 0, 0, 0, DateTimeKind.Utc), PedidoId = 7, ClienteId = 7, ConductorId = 7 },
+                new Calificacion { Id = 8, Comentario = "Servicio regular", Puntuacion = 2, Fecha = new DateTime(2025, 1, 26, 0, 0, 0, DateTimeKind.Utc), PedidoId = 8, ClienteId = 8, ConductorId = 8 },
+                new Calificacion { Id = 9, Comentario = "Buen conductor", Puntuacion = 4, Fecha = new DateTime(2025, 1, 28, 0, 0, 0, DateTimeKind.Utc), PedidoId = 9, ClienteId = 9, ConductorId = 9 },
+                new Calificacion { Id = 10, Comentario = "Excelente atención", Puntuacion = 5, Fecha = new DateTime(2025, 1, 30, 0, 0, 0, DateTimeKind.Utc), PedidoId = 10, ClienteId = 10, ConductorId = 10 }
             );
 
             // DetallePedido 
@@ -498,9 +510,9 @@ namespace WebAppCourierTrack
                 .HasForeignKey(p => p.TipoVehiculoId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Pedido>()
-                .HasOne(p => p.Calificacion)
+                .HasOne(p => p.Conductor)
                 .WithMany(c => c.Pedidos)
-                .HasForeignKey(p => p.CalificacionId)
+                .HasForeignKey(p => p.ConductorId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Pedido>()
                 .HasOne(p => p.DetallePedido)
@@ -510,16 +522,16 @@ namespace WebAppCourierTrack
 
             // tabla Pedido 
             modelBuilder.Entity<Pedido>().HasData(
-                new Pedido { Id = 1, Fragil = true, PesoKg = 2.50m, DistanciaKm = 8.50m, CostoTotal = 45.00m, TipoVehiculoId = 1, ClienteId = 1, DetallePedidoId = 1, CalificacionId = 1 },
-                new Pedido { Id = 2, Fragil = false, PesoKg = 5.20m, DistanciaKm = 12.00m, CostoTotal = 70.00m, TipoVehiculoId = 2, ClienteId = 2, DetallePedidoId = 2, CalificacionId = 2 },
-                new Pedido { Id = 3, Fragil = true, PesoKg = 1.80m, DistanciaKm = 4.50m, CostoTotal = 30.00m, TipoVehiculoId = 1, ClienteId = 3, DetallePedidoId = 3, CalificacionId = 3 },
-                new Pedido { Id = 4, Fragil = false, PesoKg = 8.00m, DistanciaKm = 20.00m, CostoTotal = 120.00m, TipoVehiculoId = 3, ClienteId = 4, DetallePedidoId = 4, CalificacionId = 4 },
-                new Pedido { Id = 5, Fragil = true, PesoKg = 3.40m, DistanciaKm = 15.50m, CostoTotal = 95.00m, TipoVehiculoId = 2, ClienteId = 5, DetallePedidoId = 5, CalificacionId = 5 },
-                new Pedido { Id = 6, Fragil = false, PesoKg = 6.80m, DistanciaKm = 18.00m, CostoTotal = 110.00m, TipoVehiculoId = 3, ClienteId = 1, DetallePedidoId = 6, CalificacionId = 6 },
-                new Pedido { Id = 7, Fragil = true, PesoKg = 0.90m, DistanciaKm = 3.50m, CostoTotal = 22.00m, TipoVehiculoId = 1, ClienteId = 2, DetallePedidoId = 7, CalificacionId = 7 },
-                new Pedido { Id = 8, Fragil = false, PesoKg = 12.00m, DistanciaKm = 28.00m, CostoTotal = 175.00m, TipoVehiculoId = 3, ClienteId = 3, DetallePedidoId = 8, CalificacionId = 8 },
-                new Pedido { Id = 9, Fragil = true, PesoKg = 4.60m, DistanciaKm = 9.20m, CostoTotal = 58.00m, TipoVehiculoId = 2, ClienteId = 4, DetallePedidoId = 9, CalificacionId = 9 },
-                new Pedido { Id = 10, Fragil = false, PesoKg = 7.30m, DistanciaKm = 14.00m, CostoTotal = 88.00m, TipoVehiculoId = 2, ClienteId = 5, DetallePedidoId = 10, CalificacionId = 10 }
+                new Pedido { Id = 1, Fragil = true, PesoKg = 2.50m, DistanciaKm = 8.50m, CostoTotal = 45.00m, TipoVehiculoId = 1, ClienteId = 1, DetallePedidoId = 1},
+                new Pedido { Id = 2, Fragil = false, PesoKg = 5.20m, DistanciaKm = 12.00m, CostoTotal = 70.00m, TipoVehiculoId = 2, ClienteId = 2, DetallePedidoId = 2},
+                new Pedido { Id = 3, Fragil = true, PesoKg = 1.80m, DistanciaKm = 4.50m, CostoTotal = 30.00m, TipoVehiculoId = 1, ClienteId = 3, DetallePedidoId = 3},
+                new Pedido { Id = 4, Fragil = false, PesoKg = 8.00m, DistanciaKm = 20.00m, CostoTotal = 120.00m, TipoVehiculoId = 3, ClienteId = 4, DetallePedidoId = 4},
+                new Pedido { Id = 5, Fragil = true, PesoKg = 3.40m, DistanciaKm = 15.50m, CostoTotal = 95.00m, TipoVehiculoId = 2, ClienteId = 5, DetallePedidoId = 5},
+                new Pedido { Id = 6, Fragil = false, PesoKg = 6.80m, DistanciaKm = 18.00m, CostoTotal = 110.00m, TipoVehiculoId = 3, ClienteId = 1, DetallePedidoId = 6},
+                new Pedido { Id = 7, Fragil = true, PesoKg = 0.90m, DistanciaKm = 3.50m, CostoTotal = 22.00m, TipoVehiculoId = 1, ClienteId = 2, DetallePedidoId = 7},
+                new Pedido { Id = 8, Fragil = false, PesoKg = 12.00m, DistanciaKm = 28.00m, CostoTotal = 175.00m, TipoVehiculoId = 3, ClienteId = 3, DetallePedidoId = 8},
+                new Pedido { Id = 9, Fragil = true, PesoKg = 4.60m, DistanciaKm = 9.20m, CostoTotal = 58.00m, TipoVehiculoId = 2, ClienteId = 4, DetallePedidoId = 9},
+                new Pedido { Id = 10, Fragil = false, PesoKg = 7.30m, DistanciaKm = 14.00m, CostoTotal = 88.00m, TipoVehiculoId = 2, ClienteId = 5, DetallePedidoId = 10}
             );
             // tabla Pago
             modelBuilder.Entity<Pago>().HasData(

@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WebAppCourierTrack.Entidades;
 
 namespace WebAppCourierTrack.DTO
 {
     public class CalificacionCreaDTO
     {
-
         [StringLength(255, ErrorMessage = "El comentario no puede exceder los 255 caracteres")]
         public string? Comentario { get; set; }
 
@@ -15,9 +15,17 @@ namespace WebAppCourierTrack.DTO
         [Required(ErrorMessage = "La fecha es obligatoria")]
         public DateTime Fecha { get; set; }
 
-        // FK Usuario
-        [Required(ErrorMessage = "El usuario es obligatorio")]
-        public int UsuarioId { get; set; }
 
+        // Pedido calificado
+        public int PedidoId { get; set; }
+        
+
+        // Cliente que calificó
+        public int ClienteId { get; set; }
+  
+
+        // Conductor calificado
+        public int ConductorId { get; set; }
+ 
     }
 }

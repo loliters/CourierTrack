@@ -17,14 +17,17 @@ namespace WebAppCourierTrack.Entidades
         [Required(ErrorMessage = "La fecha es obligatoria")]
         public DateTime Fecha { get; set; }
 
-        // FK Usuario
-        [Required(ErrorMessage = "El usuario es obligatorio")]
-        public int UsuarioId { get; set; }
 
-        // Propiedad de navegación
-        public Usuario Usuario { get; set; }
+        // Pedido calificado
+        public int PedidoId { get; set; }
+        public Pedido Pedido { get; set; }
 
-        // Relación con pedidos propedad de navegacion
-        public List<Pedido> Pedidos { get; set; }
+        // Cliente que calificó
+        public int ClienteId { get; set; }
+        public Cliente Cliente { get; set; }
+
+        // Conductor calificado
+        public int ConductorId { get; set; }
+        public Conductor Conductor { get; set; }
     }
 }
