@@ -87,13 +87,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
     var usuarios = await context.Usuarios.ToListAsync();
     foreach (var u in usuarios)
     {
-        // Si la contraseña no parece un hash BCrypt (no empieza con "$2")
         if (!string.IsNullOrEmpty(u.Password) && !u.Password.StartsWith("$2"))
         {
             u.Password = BCrypt.Net.BCrypt.HashPassword(u.Password);
@@ -107,6 +107,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//Servir archivos estáticos desde wwwroot
+app.UseDefaultFiles();     // 
+app.UseStaticFiles();      // wwwroot
 
 app.UseHttpsRedirection();
 app.UseCors("NuevaPolitica");
