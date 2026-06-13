@@ -8,5 +8,7 @@ namespace WebAppCourierTrack.DTO
         public int Id { get; set; }
 
         public DateTime FechaNac { get; set; }
+        //mostrar relacion
+        public ClienteDTO Cliente { get; set; }
     }
 }
