@@ -8,5 +8,7 @@ namespace WebAppCourierTrack.DTO
         public int Id { get; set; }
         public string RazonSocial { get; set; }
         public string Nit { get; set; }
+        //mostrar relacion
+        public ClienteDTO Cliente { get; set; }
     }
 }
