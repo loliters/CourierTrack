@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Track Your Package - Cliente</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <!--flaticon-->
+    <link rel="stylesheet"
+          href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
+
+    <!-- MAPBOX -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.5.1/mapbox-gl.css" rel="stylesheet">
+</head>
+<body>
+    <header class="topbar">
+        <div class="logo-container">
+
+            <!-- LOGO  -->
+
+            <div class="logo-text">
+                <h1>Track Your Package</h1>
+                <p>Courier & Delivery Service</p>
+            </div>
+
+        </div>
+
+        <div class="user-section">
+            <div class="user-info">
+                <i class="fi fi-rr-user"></i>
+                <span id="nombreCliente">
+                    Cliente
+                </span>
+            </div>
+
+            <button id="btnCerrarSesion">
+                <!-- Reemplazado logout.png por icono flaticon -->
+                <i class="fi fi-rr-sign-out-alt" aria-hidden="true"></i>
+                <span>Cerrar sesión</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+
+        <!-- PANEL IZQUIERDO -->
+
+        <aside class="sidebar">
+
+            <!-- NUEVO PEDIDO -->
+
+            <div class="card">
+                <h2>Nuevo Pedido</h2>
+                <div class="input-group">
+                    <label>Origen</label>
+                    <input type="text" id="txtOrigen" placeholder="Ingrese origen">
+                </div>
+
+                <div class="input-group">
+                    <label>Destino</label>
+                    <input type="text" id="txtDestino" placeholder="Ingrese destino">
+                </div>
+
+                <div class="input-group">
+                    <label>Peso (Kg)</label>
+                    <input type="number" id="txtPeso" placeholder="0.00">
+                </div>
+
+                <button id="btnAgregarParada" class="btn-secondary">
+                    Agregar parada
+                </button>
+
+            </div>
+            <!-- VEHÍCULOS -->
+            <div class="card">
+                <h2>Tipo de Vehículo</h2>
+                <div class="vehiculos-container">
+                    <div class="vehiculo-card">
+                        
+                        <i class="fi fi-rr-motorcycle" aria-hidden="true"></i>
+                        <h4>Moto</h4>
+                        <p>Hasta 20 Kg</p>
+                        <span>Desde Bs 4</span>
+                    </div>
+                    <div class="vehiculo-card">
+                        <i class="fi fi-rr-car"></i>
+                        <h4>Auto</h4>
+                        <p>Hasta 100 Kg</p>
+                        <span>Desde Bs 8</span>
+                    </div>
+                    <div class="vehiculo-card">
+                        <i class="fi fi-ts-rv"></i>
+                        <h4>Camioneta</h4>
+                        <p>Hasta 500 Kg</p>
+                        <span>Desde Bs 15</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESUMEN -->
+
+            <div class="card">
+                <h2>Resumen</h2>
+
+                <p>
+                    Distancia:
+                    <strong id="lblDistancia">
+                        0 Km
+                    </strong>
+                </p>
+
+                <p>
+                    Costo:
+                    <strong id="lblCosto">
+                        Bs 0
+                    </strong>
+                </p>
+                <p>
+                    Tiempo estimado:
+                    <strong id="lblTiempo">
+                    </strong>
+                </p>
+            </div>
+            <button id="btnSolicitarPedido" class="btn-primary">
+                Solicitar Envío
+            </button>
+        </aside>
+
+        <!--mapa-->
+        <main class="main-content">
+            <section class="map-section">
+                <div id="map">
+                    <div class="map-placeholder">                        
+                        <i class="fi fi-rr-map" aria-hidden="true"></i>
+                        <h3>Mapa de Seguimiento</h3>
+                        <p>
+                            Aquí se mostrará Mapbox
+                        </p>
+                    </div>
+                </div>
+            </section>
+            <!--estado pedido-->
+            <section class="pedido-status">
+                <div class="status-card">
+                    <h2>Pedido Actual</h2>
+                    <div class="status-grid">
+                        <div>
+                            <label>Estado</label>
+                            <p id="estadoPedido">
+                                Pendiente
+                            </p>
+                        </div>
+                        <div>
+                            <label>Conductor</label>
+                            <p id="nombreConductor">
+                                Sin asignar
+                            </p>
+                        </div>
+                        <div>
+                            <label>Vehículo</label>
+                            <p id="tipoVehiculo">
+                            </p>
+                        </div>
+                        <div>
+                            <label>Tiempo restante</label>
+                            <p id="tiempoRestante">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.5.1/mapbox-gl.js"></script>
+   
+
+    <script src="js/dashboard_cliente.js"></script>
+
+</body>
+
+</html>
