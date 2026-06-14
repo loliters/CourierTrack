@@ -10,7 +10,7 @@ namespace WebAppCourierTrack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class UsuarioController : Controller
     {
         private readonly ApplicationDBContext _context;
         private readonly IMapper _mapper;

@@ -20,9 +20,10 @@ namespace WebAppCourierTrack.Controllers
             _context = context;
             _mapper = mapper;
         }
-
+        
         // GET: api/rol
         [HttpGet]
+        //[Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<List<RolDTO>>> Get()
         {
             var roles = await _context.Roles.ToListAsync();

@@ -1,10 +1,233 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Courier Track - Cliente API</title>
+    <style>
+        /* === ESTILOS GLOBALES Y VARIABLES === */
+        :root {
+            --color-primary: #303E8C; /* Azul Principal */
+            --color-background: #F2F2F2; /* Fondo General (Gris muy claro) */
+            --color-text-primary: #1E2A3A; /* Texto oscuro principal */
+            --color-text-secondary: #A6A6A6; /* Texto secundario (Gris) */
+            --color-accent: #F2B807; /* Amarillo de Acento */
+            --color-action-secondary: #F2884B; /* Naranja (Botón salir, etc.) */
+            --border-radius: 16px;
+            --box-shadow: 0 10px 30px rgba(48, 62, 140, 0.08); /* Sombra suave azulada */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif; /* Poppins es una fuente moderna para apps */
+        }
+
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        /* === CONTENEDOR PRINCIPAL === */
+        .container {
+            max-width: 500px; /* Un poco más estrecho para sensación de móvil */
+            width: 100%;
+        }
+
+        /* === DISEÑO DE TARJETA ESTILO APP === */
+        .card {
+            background: white;
+            border-radius: 24px; /* Bordes más redondeados tipo app */
+            padding: 2.5rem 2rem;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* === TÍTULOS Y CABECERAS === */
+        h2 {
+            margin-bottom: 1.5rem;
+            color: var(--color-primary); /* Título en el azul de la paleta */
+            font-weight: 700;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        /* Subcabecera decorada con el acento amarillo */
+        h3.section-header {
+            color: var(--color-text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            border-left: 4px solid var(--color-accent); /* Acento amarillo */
+        }
+
+        /* === INPUTS Y FORMULARIOS === */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #E9ECEF; /* Borde muy suave */
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            color: var(--color-text-primary);
+        }
+
+            /* Estilo al enfocar el input: usa el azul de la paleta */
+            input:focus {
+                outline: none;
+                border-color: var(--color-primary);
+                box-shadow: 0 0 0 4px rgba(48, 62, 140, 0.15);
+            }
+
+            input::placeholder {
+                color: var(--color-text-secondary);
+            }
+
+        /* === BOTONES (Lo más importante de la paleta) === */
+        button {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: none;
+            letter-spacing: 0.5px;
+        }
+
+            /* Botón Principal: Azul (#303E8C) */
+            button[type="submit"], #btnCargarEnvios {
+                background-color: var(--color-primary);
+                color: white;
+            }
+
+                button[type="submit"]:hover, #btnCargarEnvios:hover {
+                    background-color: #253170; /* Azul ligeramente más oscuro al hover */
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(48, 62, 140, 0.2);
+                }
+
+        /* Botón de Cerrar Sesión: Naranja (#F2884B) */
+        #btnCerrarSesion {
+            background-color: var(--color-action-secondary);
+            color: white;
+            margin-top: 1rem; /* Separación extra */
+        }
+
+            #btnCerrarSesion:hover {
+                background-color: #E2793D; /* Naranja ligeramente más oscuro al hover */
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(242, 136, 75, 0.2);
+            }
+
+        /* === MENSAJES DE ERROR === */
+        .error {
+            color: #dc3545;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: #ffe5e7;
+            border-radius: 10px;
+        }
+
+        /* === LISTA DE RESULTADOS ESTILO APP LOGÍSTICA === */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        li {
+            background: white; /* Tarjetas individuales dentro de la lista */
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            border: 1px solid #E9ECEF;
+            transition: border-color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+            li:hover {
+                border-color: rgba(48, 62, 140, 0.2);
+            }
+
+        /* Estilo para los mensajes de información (ej. "Inicia sesión...") */
+        .info-text {
+            color: var(--color-text-secondary);
+            font-style: italic;
+            text-align: center;
+            padding: 2rem;
+            background: #F8F9FA;
+            border-radius: var(--border-radius);
+            width: 100%;
+        }
+
+        /* === DECORACIÓN INFERIOR ESTILO APP === */
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background-color: var(--color-accent); /* Barra amarilla al final */
+        }
+
+        /* === AJUSTES DE ESPACIADO === */
+        hr {
+            margin: 2rem 0;
+            border: 0;
+            border-top: 1px solid #E9ECEF;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="container">
+        <div id="seccion-login" class="card">
+            <h2>Track Your Package</h2> <form id="formLogin">
+                <input type="email" id="inputEmail" placeholder="Correo electrónico" required autocomplete="email">
+                <input type="password" id="inputPassword" placeholder="Contraseña" required autocomplete="current-password">
+                <button type="submit">Ingresar al Sistema</button>
+            </form>
+            <div id="loginError" class="error"></div>
+        </div>
 
+        <div id="seccion-contenido" class="card" style="display: none;">
+            <h2>Panel de control</h2>
+            <button id="btnCargarEnvios">Cargar datos protegidos</button>
+            <button id="btnCerrarSesion">Cerrar sesión</button>
+            <hr>
+            <h3 class="section-header">Respuesta de la API</h3>
+            <ul id="listaEnvios">
+                <li class="info-text">Inicia sesión y presiona "Cargar datos protegidos"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
