@@ -25,7 +25,9 @@ namespace WebAppCourierTrack.Controllers
         [HttpGet]
         public async Task<ActionResult<List<TarifaDTO>>> Get()
         {
-            var tarifas = await _context.Tarifas.ToListAsync();
+            var tarifas = await _context.Tarifas
+                .Include(t => t.TipoVehiculo)   // ← incluir el tipo de vehículo
+                .ToListAsync();
             return Ok(_mapper.Map<List<TarifaDTO>>(tarifas));
         }
 

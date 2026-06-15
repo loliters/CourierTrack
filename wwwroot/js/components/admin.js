@@ -9,7 +9,7 @@ let currentPage = 1;
 let currentUser = null;
 const itemsPerPage = 10;
 
-// Configuración completa de las 33 tablas (se han eliminado las que no tienen endpoint)
+// Configuración completa de las 33 tablas
 const entityConfig = {
     pedidos: { endpoint: '/Pedido', displayName: 'Pedidos' },
     usuarios: { endpoint: '/Usuario', displayName: 'Usuarios' },
@@ -168,7 +168,7 @@ async function loadEntityData(entity) {
     return data;
 }
 
-// ===================== RENDERIZADO DE TABLAS (CON camelCase CORRECTO) =====================
+// ===================== RENDERIZADO DE TABLAS (CON CASOS ESPECÍFICOS) =====================
 function renderEntityTable(entity, data, searchTerm = '') {
     const config = entityConfig[entity];
     if (!config) return '<p>Entidad no soportada</p>';
@@ -184,7 +184,7 @@ function renderEntityTable(entity, data, searchTerm = '') {
 
     let tableHtml = `<div class="table-wrapper"><div class="responsive-table"><table class="admin-table"><thead><tr>`;
 
-    // Cabeceras
+    // Cabeceras según entidad
     if (entity === 'usuarios') {
         tableHtml += `<th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Acciones</th>`;
     } else if (entity === 'pedidos') {
@@ -193,7 +193,20 @@ function renderEntityTable(entity, data, searchTerm = '') {
         tableHtml += `<th>ID</th><th>N° Licencia</th><th>Usuario ID</th><th>Tipo Licencia</th><th>Acciones</th>`;
     } else if (entity === 'vehiculos') {
         tableHtml += `<th>ID</th><th>Placa</th><th>Modelo</th><th>Color</th><th>Año</th><th>Conductor</th><th>Acciones</th>`;
+    } else if (entity === 'tarifa') {
+        tableHtml += `<th>ID</th><th>Tarifa</th><th>Acciones</th>`;
+    } else if (entity === 'cliente') {
+        tableHtml += `<th>ID</th><th>Documento</th><th>Usuario</th><th>Tipo Cliente</th><th>Acciones</th>`;
+    } else if (entity === 'clientenatural') {
+        tableHtml += `<th>ID</th><th>Fecha Nac.</th><th>Usuario</th><th>Género</th><th>Acciones</th>`;
+    } else if (entity === 'clientejuridico') {
+        tableHtml += `<th>ID</th><th>Razón Social</th><th>NIT</th><th>Cliente Asociado</th><th>Acciones</th>`;
+    } else if (entity === 'detallepedido') {
+        tableHtml += `<th>ID</th><th>Fecha</th><th>Descripción</th><th>Acciones</th>`;
+    } else if (entity === 'seguimiento') {
+        tableHtml += `<th>ID</th><th>Fecha</th><th>Observación</th><th>Pedido ID</th><th>Conductor ID</th><th>Vehículo ID</th><th>Ubicación ID</th><th>Acciones</th>`;
     } else {
+        // Para entidades genéricas (rol, genero, color, etc.)
         tableHtml += `<th>ID</th><th>Nombre / Valor</th><th>Acciones</th>`;
     }
     tableHtml += `</thead><tbody>`;
@@ -211,76 +224,174 @@ function renderEntityTable(entity, data, searchTerm = '') {
                 else if (roleText === 'CLIENTE') roleClass = 'badge-cliente';
                 tableHtml += `
                     <tr>
-                        <td>${item.id}</td>
-                        <td>${escapeHtml(item.nombre || '')}</td>
-                        <td>${escapeHtml(item.correo || '')}</td>
-                        <td><span class="role-badge ${roleClass}">${roleText}</span></td>
+                        <td>${item.id}${'    '}
+                        <td>${escapeHtml(item.nombre || '')}${'    '}
+                        <td>${escapeHtml(item.correo || '')}${'    '}
+                        <td><span class="role-badge ${roleClass}">${roleText}</span>${'    '}
                         <td class="actions-cell">
                             <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
                             <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
-                        </td>
+                        ${'    '}
                     </tr>
                 `;
             } else if (entity === 'pedidos') {
-                // Usar camelCase según serialización (clienteId, pesoKg, distanciaKm, costoTotal)
-                // estados[0].nombre
                 const estadoNombre = (item.estados && item.estados.length > 0)
                     ? (item.estados[0].nombre || 'Pendiente')
                     : 'Pendiente';
                 tableHtml += `
                     <tr>
-                        <td>${item.id}</td>
-                        <td>${item.clienteId ?? ''}</td>
-                        <td>${item.conductorId ?? '—'}</td>
-                        <td>${item.pesoKg ?? ''}</td>
-                        <td>${item.distanciaKm ?? ''}</td>
-                        <td>$${(item.costoTotal ?? 0).toFixed(2)}</td>
-                        <td><span class="status-badge">${estadoNombre}</span></td>
+                        <td>${item.id}${'    '}
+                        <td>${item.clienteNombre || '—'}${'    '}
+                        <td>${item.conductorNombre || '—'}${'    '}
+                        <td>${item.pesoKg ?? ''}${'    '}
+                        <td>${item.distanciaKm ?? ''}${'    '}
+                        <td>$${(item.costoTotal ?? 0).toFixed(2)}${'    '}
+                        <td><span class="status-badge">${estadoNombre}</span>${'    '}
                         <td class="actions-cell">
                             <button class="btn-icon btn-rastrear" data-id="${item.id}"><i class="fas fa-map-marker-alt"></i></button>
                             <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
                             <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
-                        </td>
+                        ${'    '}
                     </tr>
                 `;
             } else if (entity === 'conductores') {
                 tableHtml += `
                     <tr>
-                        <td>${item.id}</td>
-                        <td>${item.nroLicencia || '—'}</td>
-                        <td>${item.usuarioId}</td>
-                        <td>${item.tipoLicenciaId}</td>
+                        <td>${item.id}${'    '}
+                        <td>${item.nroLicencia || '—'}${'    '}
+                        <td>${item.usuarioId ?? ''}${'    '}
+                        <td>${item.tipoLicenciaId ?? ''}${'    '}
                         <td class="actions-cell">
                             <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
                             <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
-                        </td>
+                        ${'    '}
                     </tr>
                 `;
             } else if (entity === 'vehiculos') {
                 tableHtml += `
                     <tr>
-                        <td>${item.id}</td>
-                        <td>${item.placa}</td>
-                        <td>${item.modeloId}</td>
-                        <td>${item.colorId}</td>
-                        <td>${item.anioVehiculoId}</td>
-                        <td>${item.conductorId || '—'}</td>
+                        <td>${item.id}${'    '}
+                        <td>${item.placa}${'    '}
+                        <td>${item.modeloId}${'    '}
+                        <td>${item.colorId}${'    '}
+                        <td>${item.anioVehiculoId}${'    '}
+                        <td>${item.conductorId || '—'}${'    '}
                         <td class="actions-cell">
                             <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
                             <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
-                        </td>
+                        ${'    '}
+                    </tr>
+                `;
+            } else if (entity === 'tarifa') {
+                const precioKg = item.precioKg ?? item.PrecioKg ?? 0;
+                const precioKm = item.precioKm ?? item.PrecioKm ?? 0;
+                const displayValue = `${precioKg.toFixed(2)} Bs/kg, ${precioKm.toFixed(2)} Bs/km`;
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}${'    '}
+                        <td>${escapeHtml(displayValue)}${'    '}
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        ${'    '}
+                    </tr>
+                `;
+            } else if (entity === 'cliente') {
+                const nroDoc = item.nroDocumento ?? item.NroDocumento ?? '';
+                const usuarioNombre = item.usuarioNombre ?? item.usuario?.nombre ?? '';
+                const tipoCliente = item.tipoClienteNombre ?? item.tipoCliente?.nombre ?? '';
+                tableHtml += `
+                    <td>
+                        <td>${item.id}${'    '}
+                        <td>${escapeHtml(nroDoc)}${'    '}
+                        <td>${escapeHtml(usuarioNombre)}${'    '}
+                        <td>${escapeHtml(tipoCliente)}${'    '}
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        ${'    '}
+                    </tr>
+                `;
+            } else if (entity === 'clientenatural') {
+                const fechaNac = item.fechaNac ? new Date(item.fechaNac).toLocaleDateString() : '';
+                const usuarioNombre = item.cliente?.usuario?.nombre || item.cliente?.usuarioNombre || '';
+                const generoNombre = item.genero?.nombre || '';
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}${'    '}
+                        <td>${escapeHtml(fechaNac)}${'    '}
+                        <td>${escapeHtml(usuarioNombre)}${'    '}
+                        <td>${escapeHtml(generoNombre)}${'    '}
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        ${'    '}
+                    </tr>
+                `;
+            } else if (entity === 'clientejuridico') {
+                const razonSocial = item.razonSocial ?? item.RazonSocial ?? '';
+                const nit = item.nit ?? item.Nit ?? '';
+                const clienteAsociado = item.cliente?.usuario?.nombre || item.cliente?.usuarioNombre || '';
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}${'    '}
+                        <td>${escapeHtml(razonSocial)}${'    '}
+                        <td>${escapeHtml(nit)}${'    '}
+                        <td>${escapeHtml(clienteAsociado)}${'    '}
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        ${'    '}
+                    </tr>
+                `;
+            } else if (entity === 'detallepedido') {
+                const fecha = item.fecha ? new Date(item.fecha).toLocaleString() : '';
+                const descripcion = item.descripcion ?? '';
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}${'    '}
+                        <td>${escapeHtml(fecha)}${'    '}
+                        <td>${escapeHtml(descripcion)}${'    '}
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        ${'    '}
+                    </tr>
+                `;
+            } else if (entity === 'seguimiento') {
+                const fecha = item.fecha ? new Date(item.fecha).toLocaleString() : '';
+                const observacion = item.observacion ?? '';
+                const pedidoId = item.pedidoId ?? '';
+                const conductorId = item.conductorId ?? '';
+                const vehiculoId = item.vehiculoId ?? '';
+                const ubicacionId = item.ubicacionId ?? '';
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}${'    '}
+                        <td>${escapeHtml(fecha)}${'    '}
+                        <td>${escapeHtml(observacion)}${'    '}
+                        <td>${escapeHtml(pedidoId)}${'    '}
+                        <td>${escapeHtml(conductorId)}${'    '}
+                        <td>${escapeHtml(vehiculoId)}${'    '}
+                        <td>${escapeHtml(ubicacionId)}${'    '}
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        ${'    '}
                     </tr>
                 `;
             } else {
+                // Entidades genéricas (rol, genero, color, etc.)
                 let displayValue = item.nombre || item.categoria || item.anio || `${item.latitud}, ${item.longitud}` || item.descripcion || `ID: ${item.id}`;
+                displayValue = (displayValue !== undefined && displayValue !== null) ? displayValue : '';
                 tableHtml += `
                     <tr>
-                        <td>${item.id}</td>
-                        <td>${escapeHtml(displayValue)}</td>
+                        <td>${item.id}${'    '}
+                        <td>${escapeHtml(displayValue)}${'    '}
                         <td class="actions-cell">
                             <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
                             <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
-                        </td>
+                        ${'    '}
                     </tr>
                 `;
             }
@@ -301,7 +412,8 @@ function renderEntityTable(entity, data, searchTerm = '') {
 }
 
 function escapeHtml(str) {
-    if (!str) return '';
+    if (str === undefined || str === null) return '';
+    str = String(str);
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
@@ -456,7 +568,7 @@ async function rastrearPedido(pedidoId) {
     }
 }
 
-// ---------- MODALES CORREGIDOS (con camelCase) ----------
+// ---------- MODALES ----------
 async function showCreateModal(entity) {
     const config = entityConfig[entity];
     if (!config) return;
@@ -529,7 +641,6 @@ async function showEditModal(entity, id) {
     if (!item) return;
     let formHtml = '';
 
-    // Función auxiliar para obtener valor seguro (evita "undefined")
     const getVal = (prop) => {
         const val = item[prop];
         return (val === undefined || val === null) ? '' : val;

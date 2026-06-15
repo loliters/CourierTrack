@@ -8,5 +8,6 @@ namespace WebAppCourierTrack.DTO
         public int Id { get; set; }
         public decimal PrecioKg { get; set; }
         public decimal PrecioKm { get; set; }
+        public string NombreVehiculo { get; set; }
     }
 }

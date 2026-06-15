@@ -18,6 +18,7 @@ namespace WebAppCourierTrack.Utils
             CreateMap<Genero,  GeneroDTO>();
             //tipo cliente
             CreateMap<TipoClienteCreaDTO, TipoCliente>();
+
             CreateMap<TipoCliente, TipoClienteDTO>();
             //TIPO DOCUMENTO
             CreateMap<TipoDocumentoCreaDTO, TipoDocumento>();
@@ -76,7 +77,10 @@ namespace WebAppCourierTrack.Utils
 
             //cliente
             CreateMap<ClienteCreaDTO, Cliente>();
-            CreateMap<Cliente, ClienteDTO>();
+            CreateMap<Cliente, ClienteDTO>()
+                .ForMember(dest => dest.UsuarioNombre, opt => opt.MapFrom(src => $"{src.Usuario.Nombre} {src.Usuario.ApPat}"))
+                .ForMember(dest => dest.UsuarioCorreo, opt => opt.MapFrom(src => src.Usuario.Correo))
+                .ForMember(dest => dest.TipoClienteNombre, opt => opt.MapFrom(src => src.TipoCliente.Nombre));
             //cliente natural
             CreateMap<ClienteNaturalCreaDTO, ClienteNatural>();
             CreateMap<ClienteNatural, ClienteNaturalDTO>();
@@ -107,7 +111,11 @@ namespace WebAppCourierTrack.Utils
 
             //Conductor
             CreateMap<ConductorCreaDTO, Conductor>();
-            CreateMap<Conductor, ConductorDTO>();
+            CreateMap<Conductor, ConductorDTO>()
+                .ForMember(dest => dest.UsuarioId, opt => opt.MapFrom(src => src.UsuarioId))
+                .ForMember(dest => dest.TipoLicenciaId, opt => opt.MapFrom(src => src.TipoLicenciaId))
+                .ForMember(dest => dest.UsuarioNombre, opt => opt.MapFrom(src => src.Usuario.Nombre + " " + src.Usuario.ApPat))
+                .ForMember(dest => dest.TipoLicenciaCategoria, opt => opt.MapFrom(src => src.TipoLicencia.Categoria));
             //Modelo
             CreateMap<ModeloCreaDTO, Modelo>();
             CreateMap<Modelo, ModeloDTO>();
@@ -127,7 +135,8 @@ namespace WebAppCourierTrack.Utils
                                                      src.Conductor.Usuario.Nombre : null));
             //Tarifa
             CreateMap<TarifaCreaDTO, Tarifa>();
-            CreateMap<Tarifa, TarifaDTO>();
+            CreateMap<Tarifa, TarifaDTO>()
+                .ForMember(dest => dest.NombreVehiculo, opt => opt.MapFrom(src => src.TipoVehiculo.Nombre));
             //DetallePedido
             CreateMap<DetallePedidoCreaDTO, DetallePedido>();
             CreateMap<DetallePedido, DetallePedidoDTO>();
@@ -136,7 +145,14 @@ namespace WebAppCourierTrack.Utils
             CreateMap<Pago, PagoDTO>();
             //Seguimiento
             CreateMap<SeguimientoCreaDTO, Seguimiento>();
-            CreateMap<Seguimiento, SeguimientoDTO>();
+            CreateMap<Seguimiento, SeguimientoDTO>()
+                .ForMember(dest => dest.PedidoInfo, opt => opt.MapFrom(src =>
+                    $"Pedido #{src.PedidoId} - Cliente: {src.Pedido.Cliente.Usuario.Nombre}"))
+                .ForMember(dest => dest.ConductorNombre, opt => opt.MapFrom(src =>
+                    src.Conductor != null ? src.Conductor.Usuario.Nombre : "No asignado"))
+                .ForMember(dest => dest.VehiculoPlaca, opt => opt.MapFrom(src => src.Vehiculo.Placa))
+                .ForMember(dest => dest.UbicacionCoords, opt => opt.MapFrom(src =>
+                    $"{src.Ubicacion.Latitud}, {src.Ubicacion.Longitud}"));
             //HistorialUbicacion
             CreateMap<HistorialUbicacionCreaDTO, HistorialUbicacion>();
             CreateMap<HistorialUbicacion, HistorialUbicacionDTO>();

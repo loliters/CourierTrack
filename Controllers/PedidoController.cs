@@ -33,7 +33,9 @@ namespace WebAppCourierTrack.Controllers
                 .Include(p => p.EstadosPedidos)
                     .ThenInclude(ep => ep.Estado)
                 .Include(p => p.Cliente)
-                    .ThenInclude(c => c.Usuario);
+                    .ThenInclude(c => c.Usuario)
+                .Include(p => p.Conductor)          // ← Agrega esto
+                    .ThenInclude(c => c.Usuario);    // ← Para obtener su nombre
 
             if (rol == "ADMINISTRADOR")
             {

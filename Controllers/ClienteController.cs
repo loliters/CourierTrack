@@ -27,7 +27,10 @@ namespace WebAppCourierTrack.Controllers
         [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<List<ClienteDTO>>> Get()
         {
-            var clientes = await _context.Clientes.ToListAsync();
+            var clientes = await _context.Clientes
+                .Include(c => c.Usuario)
+                .Include(c => c.TipoCliente)
+                .ToListAsync();
             return Ok(_mapper.Map<List<ClienteDTO>>(clientes));
         }
 
