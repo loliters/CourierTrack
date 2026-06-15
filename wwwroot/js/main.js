@@ -51,6 +51,15 @@ function logout() {
     renderApp();
 }
 
+// ---------- VALIDACIÓN DE CONTRASEÑA ----------
+function validarPassword(password) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-]).{8,}$/;
+    if (!regex.test(password)) {
+        return "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&_-).";
+    }
+    return null;
+}
+
 // ---------- MODALES ----------
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
@@ -130,6 +139,8 @@ function setupModals() {
             await login(email, password);
             closeModal('loginModal');
         };
+    } else {
+        console.error('No se encontró el formulario #loginForm');
     }
 
     // Formulario de registro
@@ -137,19 +148,32 @@ function setupModals() {
     if (registerForm) {
         registerForm.onsubmit = async (e) => {
             e.preventDefault();
-            const nombre = document.getElementById('regNombre').value;
-            const apPat = document.getElementById('regApPat').value;
-            const apMat = document.getElementById('regApMat').value;
-            const email = document.getElementById('regEmail').value;
-            const telefono = document.getElementById('regTelefono').value;
+
+            const nombre = document.getElementById('regNombre').value.trim();
+            const apPat = document.getElementById('regApPat').value.trim();
+            const apMat = document.getElementById('regApMat').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            let telefonoRaw = document.getElementById('regTelefono').value.trim();
+            let telefono = telefonoRaw.replace(/\D/g, '');
+            if (telefono.length !== 8) {
+                alert(`El teléfono debe tener exactamente 8 dígitos (ingresaste: "${telefonoRaw}")`);
+                return;
+            }
             const password = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regConfirmPassword').value;
-            const rolId = parseInt(document.getElementById('regRolId').value);
-
             if (password !== confirm) {
                 alert('Las contraseñas no coinciden');
                 return;
             }
+
+            // Validar contraseña antes de enviar
+            const errorPassword = validarPassword(password);
+            if (errorPassword) {
+                alert(errorPassword);
+                return;
+            }
+
+            const rolId = parseInt(document.getElementById('regRolId').value);
 
             const usuarioData = {
                 Nombre: nombre,
@@ -165,8 +189,8 @@ function setupModals() {
             let datosExtra = null;
             if (rolId === 3) { // CLIENTE
                 const tipoDocumentoId = parseInt(document.getElementById('regTipoDocumentoId').value);
-                const nroDocumento = document.getElementById('regNroDocumento').value;
-                const extensionCIId = tipoDocumentoId === 1 ? parseInt(document.getElementById('regExtensionCIId')?.value || 0) : null;
+                const nroDocumento = document.getElementById('regNroDocumento').value.trim();
+                const extensionCIId = tipoDocumentoId === 1 ? parseInt(document.getElementById('regExtensionCIId')?.value || '0') : null;
                 const tipoClienteId = parseInt(document.getElementById('regTipoClienteId').value);
                 datosExtra = {
                     TipoDocumentoId: tipoDocumentoId,
@@ -174,16 +198,16 @@ function setupModals() {
                     ExtensionCIId: extensionCIId,
                     TipoClienteId: tipoClienteId
                 };
-                if (tipoClienteId === 2) { // NATURAL
+                if (tipoClienteId === 2) {
                     datosExtra.FechaNac = document.getElementById('regFechaNac').value;
                     datosExtra.GeneroId = parseInt(document.getElementById('regGeneroId').value);
-                } else { // JURÍDICO
-                    datosExtra.RazonSocial = document.getElementById('regRazonSocial').value;
-                    datosExtra.Nit = document.getElementById('regNit').value;
+                } else {
+                    datosExtra.RazonSocial = document.getElementById('regRazonSocial').value.trim();
+                    datosExtra.Nit = document.getElementById('regNit').value.trim();
                 }
             } else if (rolId === 2) { // CONDUCTOR
                 datosExtra = {
-                    NroLicencia: document.getElementById('regNroLicencia').value,
+                    NroLicencia: document.getElementById('regNroLicencia').value.trim(),
                     TipoLicenciaId: parseInt(document.getElementById('regTipoLicenciaId').value)
                 };
             }
@@ -191,9 +215,12 @@ function setupModals() {
             await register(usuarioData, datosExtra, rolId);
             closeModal('registerModal');
         };
+    } else {
+        console.error('No se encontró el formulario #registerForm');
     }
 }
 
+// ---------- REGISTRO ----------
 async function register(usuarioData, datosExtra, rolId) {
     try {
         const response = await apiFetch('/Usuario', {
@@ -216,7 +243,7 @@ async function register(usuarioData, datosExtra, rolId) {
                     body: JSON.stringify(clienteData)
                 });
                 if (clienteCreado && clienteCreado.id) {
-                    if (datosExtra.TipoClienteId === 2) { // Natural
+                    if (datosExtra.TipoClienteId === 2) {
                         await apiFetch('/ClienteNatural', {
                             method: 'POST',
                             body: JSON.stringify({
@@ -225,7 +252,7 @@ async function register(usuarioData, datosExtra, rolId) {
                                 GeneroId: datosExtra.GeneroId
                             })
                         });
-                    } else { // Jurídico
+                    } else {
                         await apiFetch('/ClienteJuridico', {
                             method: 'POST',
                             body: JSON.stringify({
@@ -250,24 +277,37 @@ async function register(usuarioData, datosExtra, rolId) {
             alert('Registro exitoso. Ahora inicia sesión.');
             window.showLoginForm();
         } else {
-            alert('Error en el registro del usuario');
+            // Si la respuesta no tiene id, mostrar errores de validación si existen
+            if (response && response.errors) {
+                const errores = Object.values(response.errors).flat();
+                alert('Error en el registro:\n' + errores.join('\n'));
+            } else {
+                alert('Error en el registro del usuario');
+            }
         }
     } catch (err) {
         console.error(err);
-        alert('Error al registrar: ' + err.message);
+        // Intentar extraer errores de validación del mensaje
+        let errorMsg = err.message;
+        try {
+            const parsed = JSON.parse(err.message);
+            if (parsed.errors) {
+                const errores = Object.values(parsed.errors).flat();
+                errorMsg = errores.join('\n');
+            }
+        } catch (e) { /* no hacer nada */ }
+        alert('Error al registrar: ' + errorMsg);
     }
 }
 
-window.showLoginForm = () => openModal('loginModal');
-window.showRegisterForm = () => openModal('registerModal');
-
-// ---------- LOGIN (sin duplicar register) ----------
+// ---------- LOGIN ----------
 async function login(email, password) {
     try {
         const response = await apiFetch('/Auth/login', {
             method: 'POST',
             body: JSON.stringify({ Correo: email, Password: password })
         });
+        console.log('Respuesta del login:', response);
         if (response && response.token) {
             const user = {
                 id: response.usuarioId,
@@ -279,13 +319,16 @@ async function login(email, password) {
             localStorage.setItem('user', JSON.stringify(user));
             renderApp();
         } else {
-            alert('Credenciales incorrectas');
+            alert('Credenciales incorrectas. Verifica correo y contraseña.');
         }
     } catch (err) {
-        console.error(err);
-        alert('Error al iniciar sesión: ' + err.message);
+        console.error('Error en login:', err);
+        alert('Error al iniciar sesión: ' + (err.message || 'Error de red o servidor'));
     }
 }
+
+window.showLoginForm = () => openModal('loginModal');
+window.showRegisterForm = () => openModal('registerModal');
 
 // ---------- RENDER SEGÚN ROL ----------
 function showLanding() {

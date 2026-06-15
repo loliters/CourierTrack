@@ -8,14 +8,25 @@ let currentMarker = null;
 let currentTrackingInterval = null;
 let activeSeguimientoId = null;
 
-// Obtener conductor asociado al usuario
-async function getConductorId(userId) {
+// Función para obtener o crear el conductor automáticamente
+async function getOrCreateConductor(userId) {
     try {
         const conductores = await apiFetch('/Conductor');
-        const conductor = conductores.find(c => c.usuarioId === userId);
+        let conductor = conductores.find(c => c.usuarioId === userId);
+        if (!conductor) {
+            const nuevoConductor = await apiFetch('/Conductor', {
+                method: 'POST',
+                body: JSON.stringify({
+                    UsuarioId: userId,          // ← PascalCase
+                    NroLicencia: "PENDIENTE",   // ← PascalCase
+                    TipoLicenciaId: 1           // ← PascalCase
+                })
+            });
+            conductor = nuevoConductor;
+        }
         return conductor?.id;
     } catch (e) {
-        console.warn('Error obteniendo conductor:', e);
+        console.error('Error getOrCreateConductor:', e);
         return null;
     }
 }
@@ -24,7 +35,6 @@ async function getConductorId(userId) {
 async function getSeguimientos(conductorId) {
     try {
         const seguimientos = await apiFetch(`/Seguimiento?conductorId=${conductorId}`);
-        // Enriquecer con datos del pedido y estado actual
         for (const seg of seguimientos) {
             const pedido = await apiFetch(`/Pedido/${seg.pedidoId}`).catch(() => null);
             if (pedido) {
@@ -50,7 +60,7 @@ function calcularEstadisticas(seguimientos) {
     return { total, activos, completados, pendientes };
 }
 
-// Mostrar notificación tipo toast
+// Notificación tipo toast
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
@@ -102,12 +112,8 @@ function renderSeguimientosTable(seguimientos, searchTerm = '') {
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>ID Seguimiento</th>
-                        <th>Pedido ID</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Observación</th>
-                        <th>Acciones</th>
+                        <th>ID Seguimiento</th><th>Pedido ID</th><th>Fecha</th>
+                        <th>Estado</th><th>Observación</th><th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -145,28 +151,21 @@ function initConductorMap(lat, lng, destinoLat, destinoLng) {
         zoom: 13
     });
     currentMap.on('load', () => {
-        // Marcador de ubicación actual
         if (currentMarker) currentMarker.remove();
         currentMarker = new mapboxgl.Marker({ color: '#3b82f6' })
             .setLngLat([lng, lat])
             .addTo(currentMap);
-        // Marcador de destino si existe
         if (destinoLat && destinoLng) {
             new mapboxgl.Marker({ color: '#ef4444' })
                 .setLngLat([destinoLng, destinoLat])
                 .addTo(currentMap);
-            // Dibujar línea de ruta
             fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${lng},${lat};${destinoLng},${destinoLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`)
                 .then(res => res.json())
                 .then(data => {
                     const route = data.routes[0].geometry;
                     currentMap.addSource('route', {
                         type: 'geojson',
-                        data: {
-                            type: 'Feature',
-                            geometry: route,
-                            properties: {}
-                        }
+                        data: { type: 'Feature', geometry: route, properties: {} }
                     });
                     currentMap.addLayer({
                         id: 'route',
@@ -180,7 +179,7 @@ function initConductorMap(lat, lng, destinoLat, destinoLng) {
     });
 }
 
-// Obtener dirección desde coordenadas (geocodificación inversa)
+// Geocodificación inversa
 async function getAddress(lat, lng) {
     try {
         const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_TOKEN}&language=es`);
@@ -191,24 +190,21 @@ async function getAddress(lat, lng) {
     }
 }
 
-// Actualizar ubicación y crear nuevo seguimiento
+// Actualizar ubicación
 async function updateLocation(seguimientoId, pedidoId) {
     if (!navigator.geolocation) {
-        showToast('Geolocalización no soportada por tu navegador', 'error');
+        showToast('Geolocalización no soportada', 'error');
         return;
     }
     showToast('Obteniendo ubicación...', 'info');
     navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-            // Crear nueva ubicación
             const ubicacion = await apiFetch('/Ubicacion', {
                 method: 'POST',
                 body: JSON.stringify({ latitud: latitude, longitud: longitude })
             });
-            // Obtener seguimiento actual para copiar datos
             const seguimientoActual = await apiFetch(`/Seguimiento/${seguimientoId}`);
-            // Crear nuevo seguimiento con la nueva ubicación
             const nuevoSeguimiento = {
                 fecha: new Date().toISOString(),
                 observacion: 'Ubicación actualizada',
@@ -219,8 +215,7 @@ async function updateLocation(seguimientoId, pedidoId) {
                 estadoId: seguimientoActual.estadoId
             };
             await apiFetch('/Seguimiento', { method: 'POST', body: JSON.stringify(nuevoSeguimiento) });
-            showToast('Ubicación actualizada correctamente');
-            // Refrescar mapa y tabla
+            showToast('Ubicación actualizada');
             refreshDashboard();
         } catch (err) {
             console.error(err);
@@ -231,16 +226,13 @@ async function updateLocation(seguimientoId, pedidoId) {
     });
 }
 
-// Cambiar estado del seguimiento
+// Cambiar estado
 async function changeStatus(seguimientoId, pedidoId, nuevoEstadoNombre) {
     try {
-        // Buscar el ID del estado según nombre
         const estados = await apiFetch('/Estado');
         const estado = estados.find(e => e.nombre === nuevoEstadoNombre);
         if (!estado) throw new Error('Estado no encontrado');
-        // Obtener seguimiento actual
         const seguimientoActual = await apiFetch(`/Seguimiento/${seguimientoId}`);
-        // Crear nuevo seguimiento con el nuevo estado
         const nuevoSeguimiento = {
             fecha: new Date().toISOString(),
             observacion: `Estado cambiado a ${nuevoEstadoNombre}`,
@@ -259,14 +251,14 @@ async function changeStatus(seguimientoId, pedidoId, nuevoEstadoNombre) {
     }
 }
 
-// Marcar como entregado (crea seguimiento con estado Entregado)
+// Completar entrega
 async function completeDelivery(seguimientoId, pedidoId) {
     if (confirm('¿Confirmas que has entregado el pedido?')) {
         await changeStatus(seguimientoId, pedidoId, 'Entregado');
     }
 }
 
-// Ver pedido en mapa (ventana modal)
+// Ver mapa modal
 async function viewOnMap(pedidoId, destinoLat, destinoLng) {
     if (!destinoLat || !destinoLng) {
         showToast('No hay coordenadas de destino', 'error');
@@ -287,18 +279,17 @@ async function viewOnMap(pedidoId, destinoLat, destinoLng) {
     const closeBtn = document.getElementById('closeMapModal');
     closeBtn.onclick = () => modal.remove();
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-
     const address = await getAddress(destinoLat, destinoLng);
     document.getElementById('addressInfo').innerText = address;
-
     setTimeout(() => {
         mapboxgl.accessToken = MAPBOX_TOKEN;
-        new mapboxgl.Map({
+        const map = new mapboxgl.Map({
             container: 'modalMap',
             style: 'mapbox://styles/mapbox/streets-v12',
             center: [destinoLng, destinoLat],
             zoom: 14
-        }).on('load', function (map) {
+        });
+        map.on('load', () => {
             new mapboxgl.Marker({ color: '#ef4444' })
                 .setLngLat([destinoLng, destinoLat])
                 .addTo(map);
@@ -317,23 +308,20 @@ async function refreshDashboard() {
 // Render principal
 export async function renderConductorDashboard() {
     const user = getCurrentUser();
-    const conductorId = await getConductorId(user.id);
+    if (!user) return '<div class="card">Error: Usuario no encontrado</div>';
+    const conductorId = await getOrCreateConductor(user.id);
     if (!conductorId) {
-        return `<div class="card"><p>No se encontró información de conductor. Contacta al soporte.</p></div>`;
+        return '<div class="card">Error: No se pudo crear el perfil de conductor. Contacta al soporte.</div>';
     }
     const seguimientos = await getSeguimientos(conductorId);
     const stats = calcularEstadisticas(seguimientos);
-
-    // Obtener ubicación actual del conductor (si hay permisos) para mostrar mapa inicial
-    let currentLat = -17.389577, currentLng = -66.157607; // Cochabamba por defecto
+    let currentLat = -17.389577, currentLng = -66.157607;
     let destinoLat = null, destinoLng = null;
     const activo = seguimientos.find(s => s.estadoNombre !== 'Entregado' && s.estadoNombre !== 'Cancelado');
     if (activo && activo.destinoUbicacion) {
         destinoLat = activo.destinoUbicacion.latitud;
         destinoLng = activo.destinoUbicacion.longitud;
     }
-
-    // Intento obtener ubicación real del navegador para el mapa
     if (navigator.geolocation) {
         await new Promise((resolve) => {
             navigator.geolocation.getCurrentPosition(pos => {
@@ -343,7 +331,6 @@ export async function renderConductorDashboard() {
             }, () => resolve());
         });
     }
-
     return `
         <div class="conductor-dashboard">
             <div class="welcome-message">
@@ -373,11 +360,10 @@ export async function renderConductorDashboard() {
     `;
 }
 
+// Adjuntar eventos
 export function attachConductorEvents() {
-    // Inicializar mapa después de renderizar
     const mapContainer = document.getElementById('conductorMap');
     if (mapContainer) {
-        // Intentar obtener ubicación actual
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(pos => {
                 initConductorMap(pos.coords.latitude, pos.coords.longitude, null, null);
@@ -388,8 +374,6 @@ export function attachConductorEvents() {
             initConductorMap(-17.389577, -66.157607, null, null);
         }
     }
-
-    // Botón de actualizar ubicación manual
     const refreshBtn = document.getElementById('refreshLocationBtn');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
@@ -408,20 +392,17 @@ export function attachConductorEvents() {
             }
         });
     }
-
-    // Búsqueda en tabla
     const searchInput = document.getElementById('searchSeguimientos');
     if (searchInput) {
         searchInput.addEventListener('input', async (e) => {
             const user = getCurrentUser();
-            const conductorId = await getConductorId(user.id);
+            const conductorId = await getOrCreateConductor(user.id);
             const seguimientos = await getSeguimientos(conductorId);
             const container = document.getElementById('seguimientosContainer');
             if (container) container.innerHTML = renderSeguimientosTable(seguimientos, e.target.value);
             attachTableButtons();
         });
     }
-
     attachTableButtons();
 }
 
@@ -443,7 +424,6 @@ function attachTableButtons() {
         btn.addEventListener('click', viewMapHandler);
     });
 }
-
 async function locationHandler(e) {
     const seguimientoId = e.currentTarget.dataset.id;
     const pedidoId = e.currentTarget.dataset.pedido;

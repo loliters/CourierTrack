@@ -1,6 +1,6 @@
 ﻿// components/admin.js
 import { apiFetch } from '../utils/api.js';
-import { MAPBOX_TOKEN } from '../config.js'; 
+import { MAPBOX_TOKEN } from '../config.js';
 
 let currentMap = null;
 let currentEntity = 'resumen';
@@ -9,7 +9,7 @@ let currentPage = 1;
 let currentUser = null;
 const itemsPerPage = 10;
 
-// Configuración completa de las 33 tablas
+// Configuración completa de las 33 tablas (se han eliminado las que no tienen endpoint)
 const entityConfig = {
     pedidos: { endpoint: '/Pedido', displayName: 'Pedidos' },
     usuarios: { endpoint: '/Usuario', displayName: 'Usuarios' },
@@ -36,17 +36,15 @@ const entityConfig = {
     detallepedido: { endpoint: '/DetallePedido', displayName: 'Detalles Pedido' },
     seguimiento: { endpoint: '/Seguimiento', displayName: 'Seguimientos' },
     calificacion: { endpoint: '/Calificacion', displayName: 'Calificaciones' },
-    estadopedido: { endpoint: '/EstadoPedido', displayName: 'Estado Pedido' },
     direccionorigen: { endpoint: '/DireccionOrigen', displayName: 'Dirección Origen' },
     direcciondestino: { endpoint: '/DireccionDestino', displayName: 'Dirección Destino' },
     historialubicacion: { endpoint: '/HistorialUbicacion', displayName: 'Historial Ubicación' },
     modelo: { endpoint: '/Modelo', displayName: 'Modelos' },
     notificacion: { endpoint: '/Notificacion', displayName: 'Notificaciones' },
     pago: { endpoint: '/Pago', displayName: 'Pagos' },
-    usuarioubicacion: { endpoint: '/UsuarioUbicacion', displayName: 'Usuario Ubicación' }
 };
 
-// ---------- RENDERIZADO INICIAL (sin bloqueos) ----------
+// ---------- RENDERIZADO INICIAL ----------
 export async function renderAdminDashboard(usuario) {
     currentUser = usuario;
     const sidebarLinks = Object.entries(entityConfig).map(([key, config]) => `
@@ -92,7 +90,6 @@ export async function renderAdminDashboard(usuario) {
         </div>
     `;
 
-    // Cargar estadísticas en segundo plano
     setTimeout(() => cargarEstadisticasEnSegundoPlano(), 0);
     return html;
 }
@@ -108,14 +105,12 @@ async function cargarEstadisticasEnSegundoPlano() {
     );
     const statsArray = results.filter(r => r.status === 'fulfilled').map(r => r.value);
 
-    // Actualizar sidebar
     const statsMiniHtml = statsArray.slice(0, 6).map(s => `
         <p><i class="fas fa-database"></i> ${s.displayName}: ${s.count}</p>
     `).join('');
     const statsDiv = document.querySelector('#statsMiniContent');
     if (statsDiv) statsDiv.innerHTML = statsMiniHtml;
 
-    // Si el resumen ya está visible, actualizar tarjetas
     const resumenGrid = document.getElementById('resumenGrid');
     if (resumenGrid) {
         statsArray.forEach(stat => {
@@ -173,17 +168,23 @@ async function loadEntityData(entity) {
     return data;
 }
 
+// ===================== RENDERIZADO DE TABLAS (CON camelCase CORRECTO) =====================
 function renderEntityTable(entity, data, searchTerm = '') {
     const config = entityConfig[entity];
     if (!config) return '<p>Entidad no soportada</p>';
+
     let filtered = data.filter(item =>
         JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase())
     );
+
     const totalItems = filtered.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const start = (currentPage - 1) * itemsPerPage;
     const paginated = filtered.slice(start, start + itemsPerPage);
+
     let tableHtml = `<div class="table-wrapper"><div class="responsive-table"><table class="admin-table"><thead><tr>`;
+
+    // Cabeceras
     if (entity === 'usuarios') {
         tableHtml += `<th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Acciones</th>`;
     } else if (entity === 'pedidos') {
@@ -195,7 +196,9 @@ function renderEntityTable(entity, data, searchTerm = '') {
     } else {
         tableHtml += `<th>ID</th><th>Nombre / Valor</th><th>Acciones</th>`;
     }
-    tableHtml += `</tr></thead><tbody>`;
+    tableHtml += `</thead><tbody>`;
+
+    // Filas
     if (paginated.length === 0) {
         tableHtml += `<tr><td colspan="5" class="empty-message">No hay registros que coincidan</td></tr>`;
     } else {
@@ -206,20 +209,86 @@ function renderEntityTable(entity, data, searchTerm = '') {
                 if (roleText === 'ADMINISTRADOR') roleClass = 'badge-admin';
                 else if (roleText === 'CONDUCTOR') roleClass = 'badge-conductor';
                 else if (roleText === 'CLIENTE') roleClass = 'badge-cliente';
-                tableHtml += `<tr><td>${item.id}</td><td>${escapeHtml(item.nombre || '')}</td><td>${escapeHtml(item.correo || '')}</td><td><span class="role-badge ${roleClass}">${roleText}</span></td><td class="actions-cell"><button class="btn-icon btn-edit" data-id="${item.id}" title="Editar"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" data-id="${item.id}" title="Eliminar"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${escapeHtml(item.nombre || '')}</td>
+                        <td>${escapeHtml(item.correo || '')}</td>
+                        <td><span class="role-badge ${roleClass}">${roleText}</span></td>
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `;
             } else if (entity === 'pedidos') {
-                tableHtml += `<tr><td>${item.id}</td><td>${item.clienteId}</td><td>${item.conductorId || '—'}</td><td>${item.pesokg}</td><td>${item.distanciakm}</td><td>$${item.costototal?.toFixed(2) || '0.00'}</td><td><span class="status-badge">${item.estadosPedidos?.[0]?.estado?.nombre || 'Pendiente'}</span></td><td class="actions-cell"><button class="btn-icon btn-rastrear" data-id="${item.id}" title="Rastrear"><i class="fas fa-map-marker-alt"></i></button><button class="btn-icon btn-edit" data-id="${item.id}" title="Editar"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" data-id="${item.id}" title="Eliminar"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+                // Usar camelCase según serialización (clienteId, pesoKg, distanciaKm, costoTotal)
+                // estados[0].nombre
+                const estadoNombre = (item.estados && item.estados.length > 0)
+                    ? (item.estados[0].nombre || 'Pendiente')
+                    : 'Pendiente';
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.clienteId ?? ''}</td>
+                        <td>${item.conductorId ?? '—'}</td>
+                        <td>${item.pesoKg ?? ''}</td>
+                        <td>${item.distanciaKm ?? ''}</td>
+                        <td>$${(item.costoTotal ?? 0).toFixed(2)}</td>
+                        <td><span class="status-badge">${estadoNombre}</span></td>
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-rastrear" data-id="${item.id}"><i class="fas fa-map-marker-alt"></i></button>
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `;
             } else if (entity === 'conductores') {
-                tableHtml += `<tr><td>${item.id}</td><td>${item.nroLicencia || '—'}</td><td>${item.usuarioId}</td><td>${item.tipoLicenciaId}</td><td class="actions-cell"><button class="btn-icon btn-edit" data-id="${item.id}" title="Editar"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" data-id="${item.id}" title="Eliminar"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.nroLicencia || '—'}</td>
+                        <td>${item.usuarioId}</td>
+                        <td>${item.tipoLicenciaId}</td>
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `;
             } else if (entity === 'vehiculos') {
-                tableHtml += `<tr><td>${item.id}</td><td>${item.placa}</td><td>${item.modeloId}</td><td>${item.colorId}</td><td>${item.anioVehiculoId}</td><td>${item.conductorId || '—'}</td><td class="actions-cell"><button class="btn-icon btn-edit" data-id="${item.id}" title="Editar"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" data-id="${item.id}" title="Eliminar"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.placa}</td>
+                        <td>${item.modeloId}</td>
+                        <td>${item.colorId}</td>
+                        <td>${item.anioVehiculoId}</td>
+                        <td>${item.conductorId || '—'}</td>
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `;
             } else {
                 let displayValue = item.nombre || item.categoria || item.anio || `${item.latitud}, ${item.longitud}` || item.descripcion || `ID: ${item.id}`;
-                tableHtml += `<tr><td>${item.id}</td><td>${escapeHtml(displayValue)}</td><td class="actions-cell"><button class="btn-icon btn-edit" data-id="${item.id}" title="Editar"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" data-id="${item.id}" title="Eliminar"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+                tableHtml += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${escapeHtml(displayValue)}</td>
+                        <td class="actions-cell">
+                            <button class="btn-icon btn-edit" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `;
             }
         }
     }
-    tableHtml += `</tbody></table></div>`;
+
+    tableHtml += `</tbody>${'</table>'}</div>`;
+
     if (totalPages > 1) {
         tableHtml += `<div class="pagination-controls">`;
         for (let i = 1; i <= totalPages; i++) {
@@ -252,6 +321,7 @@ async function showEntityPanel(entity) {
     const tableHtml = renderEntityTable(entity, data);
     document.getElementById('adminMainPanel').innerHTML = searchHtml + tableHtml;
     await updateStatsInSidebar();
+
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.oninput = (e) => {
@@ -386,7 +456,7 @@ async function rastrearPedido(pedidoId) {
     }
 }
 
-// ---------- MODALES ----------
+// ---------- MODALES CORREGIDOS (con camelCase) ----------
 async function showCreateModal(entity) {
     const config = entityConfig[entity];
     if (!config) return;
@@ -458,39 +528,62 @@ async function showEditModal(entity, id) {
     const item = allData.find(x => x.id == id);
     if (!item) return;
     let formHtml = '';
+
+    // Función auxiliar para obtener valor seguro (evita "undefined")
+    const getVal = (prop) => {
+        const val = item[prop];
+        return (val === undefined || val === null) ? '' : val;
+    };
+
     if (entity === 'pedidos') {
+        const clienteId = getVal('clienteId');
+        const pesokg = getVal('pesoKg');
+        const distanciakm = getVal('distanciaKm');
+        const fragil = getVal('fragil');
+        const tipoVehiculoId = getVal('tipoVehiculoId');
+        const detallePedidoId = getVal('detallePedidoId');
         formHtml = `
-            <div class="form-group"><label>Cliente ID</label><input id="clienteId" value="${item.clienteId}" type="number"></div>
-            <div class="form-group"><label>Peso kg</label><input id="peso" value="${item.pesokg}" step="0.1"></div>
-            <div class="form-group"><label>Distancia km</label><input id="distancia" value="${item.distanciakm}" step="0.1"></div>
-            <div class="form-group"><label>Frágil</label><select id="fragil"><option value="true" ${item.fragil ? 'selected' : ''}>Sí</option><option value="false" ${!item.fragil ? 'selected' : ''}>No</option></select></div>
-            <div class="form-group"><label>Tipo Vehículo ID</label><input id="tipoVehiculoId" value="${item.tipoVehiculoId}" type="number"></div>
-            <div class="form-group"><label>Detalle Pedido ID</label><input id="detallePedidoId" value="${item.detallePedidoId}" type="number"></div>
+            <div class="form-group"><label>Cliente ID</label><input id="clienteId" value="${clienteId}" type="number"></div>
+            <div class="form-group"><label>Peso kg</label><input id="peso" value="${pesokg}" step="0.1"></div>
+            <div class="form-group"><label>Distancia km</label><input id="distancia" value="${distanciakm}" step="0.1"></div>
+            <div class="form-group"><label>Frágil</label>
+                <select id="fragil">
+                    <option value="true" ${fragil === true ? 'selected' : ''}>Sí</option>
+                    <option value="false" ${fragil === false ? 'selected' : ''}>No</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Tipo Vehículo ID</label><input id="tipoVehiculoId" value="${tipoVehiculoId}" type="number"></div>
+            <div class="form-group"><label>Detalle Pedido ID</label><input id="detallePedidoId" value="${detallePedidoId}" type="number"></div>
         `;
     } else if (entity === 'usuarios') {
+        const nombre = getVal('nombre');
+        const correo = getVal('correo');
+        const rolId = getVal('rolId');
         formHtml = `
-            <div class="form-group"><label>Nombre</label><input id="nombre" value="${item.nombre}"></div>
-            <div class="form-group"><label>Email</label><input id="correo" value="${item.correo}" type="email"></div>
-            <div class="form-group"><label>Rol ID</label><input id="rolId" value="${item.rolId}" type="number"></div>
+            <div class="form-group"><label>Nombre</label><input id="nombre" value="${escapeHtml(nombre)}"></div>
+            <div class="form-group"><label>Email</label><input id="correo" value="${escapeHtml(correo)}" type="email"></div>
+            <div class="form-group"><label>Rol ID</label><input id="rolId" value="${rolId}" type="number"></div>
         `;
     } else {
         let prop = 'nombre';
-        let value = item[prop];
-        if (entity === 'aniovehiculo') { prop = 'anio'; value = item.anio; }
-        else if (entity === 'ubicacion') { prop = 'latitud'; value = item.latitud; }
+        let value = item[prop] ?? '';
+        if (entity === 'aniovehiculo') { prop = 'anio'; value = item[prop] ?? ''; }
+        else if (entity === 'ubicacion') { prop = 'latitud'; value = item[prop] ?? ''; }
         formHtml = `<div class="form-group"><label>${prop}</label><input id="${prop}" value="${value}"></div>`;
     }
+
     const modal = document.getElementById('genericModal');
     document.getElementById('modalTitle').innerText = `Editar ${config.displayName}`;
     document.getElementById('modalBody').innerHTML = formHtml;
     modal.style.display = 'flex';
+
     const saveBtn = document.getElementById('modalSaveBtn');
     saveBtn.onclick = async () => {
         let updated = { ...item };
         if (entity === 'pedidos') {
             updated.clienteId = parseInt(document.getElementById('clienteId').value);
-            updated.pesokg = parseFloat(document.getElementById('peso').value);
-            updated.distanciakm = parseFloat(document.getElementById('distancia').value);
+            updated.pesoKg = parseFloat(document.getElementById('peso').value);
+            updated.distanciaKm = parseFloat(document.getElementById('distancia').value);
             updated.fragil = document.getElementById('fragil').value === 'true';
             updated.tipoVehiculoId = parseInt(document.getElementById('tipoVehiculoId').value);
             updated.detallePedidoId = parseInt(document.getElementById('detallePedidoId').value);

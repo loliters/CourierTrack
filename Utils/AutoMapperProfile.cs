@@ -101,8 +101,10 @@ namespace WebAppCourierTrack.Utils
             CreateMap<Pedido, PedidoDTO>();
 
             CreateMap<Pedido, PedidoConEstadosDTO>()
-                .ForMember(x => x.Estados,
-                    options => options.MapFrom(MapFromEstadoPedidoToEstadoDTO));
+            .ForMember(dest => dest.Estados, opt => opt.MapFrom(src => src.EstadosPedidos.Select(ep => ep.Estado)))
+            .ForMember(dest => dest.ClienteNombre, opt => opt.MapFrom(src => src.Cliente.Usuario.Nombre + " " + src.Cliente.Usuario.ApPat))
+            .ForMember(dest => dest.ConductorNombre, opt => opt.MapFrom(src => src.Conductor != null ? src.Conductor.Usuario.Nombre + " " + src.Conductor.Usuario.ApPat : null));
+
             //Conductor
             CreateMap<ConductorCreaDTO, Conductor>();
             CreateMap<Conductor, ConductorDTO>();

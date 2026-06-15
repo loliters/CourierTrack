@@ -6,33 +6,27 @@ import { MAPBOX_TOKEN } from '../config.js';
 let currentMap = null;
 let currentTrackingMap = null;
 
-// Obtener o crear cliente asociado al usuario
+// Obtener o crear cliente asociado al usuario (ya lo tienes bien)
 async function getOrCreateCliente(userId) {
     try {
-        // 1. Buscar cliente existente
         const clientes = await apiFetch('/Cliente');
         let cliente = clientes.find(c => c.usuarioId === userId);
-        if (cliente) return cliente.id;
-
-        // 2. No existe → crear nuevo cliente
-        const nuevoCliente = {
-            usuarioId: userId,
-            tipoClienteId: 1,      // 1 = Natural (ajusta según tu BD)
-            clienteNaturalId: null,
-            clienteJuridicoId: null,
-            fechaRegistro: new Date().toISOString()
-        };
-        const response = await apiFetch('/Cliente', {
-            method: 'POST',
-            body: JSON.stringify(nuevoCliente)
-        });
-        if (response && response.id) {
-            console.log('Cliente creado automáticamente:', response);
-            return response.id;
+        if (!cliente) {
+            const nuevoCliente = await apiFetch('/Cliente', {
+                method: 'POST',
+                body: JSON.stringify({
+                    UsuarioId: userId,          // ← con U mayúscula
+                    NroDocumento: "PENDIENTE",  // ← N mayúscula, D mayúscula
+                    TipoDocumentoId: 1,         // ← T mayúscula, D mayúscula, I mayúscula
+                    TipoClienteId: 2            // ← T mayúscula, C mayúscula, I mayúscula
+                    // ExtensionCIId: null      // opcional
+                })
+            });
+            cliente = nuevoCliente;
         }
-        throw new Error('No se pudo crear el cliente');
-    } catch (error) {
-        console.error('Error en getOrCreateCliente:', error);
+        return cliente?.id;
+    } catch (e) {
+        console.error('Error getOrCreateCliente:', e);
         return null;
     }
 }
@@ -109,13 +103,8 @@ function renderPedidosTable(pedidos, searchTerm = '') {
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Peso (kg)</th>
-                        <th>Distancia (km)</th>
-                        <th>Costo (Bs)</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                        <th>Acciones</th>
+                        <th>ID</th><th>Peso (kg)</th><th>Distancia (km)</th><th>Costo (Bs)</th>
+                        <th>Estado</th><th>Fecha</th><th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -139,7 +128,7 @@ function renderPedidosTable(pedidos, searchTerm = '') {
     `;
 }
 
-// Modal de nuevo pedido (resumido, igual que antes pero sin errores)
+// Modal de nuevo pedido
 function showNewPedidoModal() {
     const modalHtml = `
         <div id="newPedidoModal" class="modal" style="display:flex;">
@@ -175,7 +164,6 @@ function showNewPedidoModal() {
     cancelBtn.onclick = () => modal.remove();
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 
-    // Cargar tipos de vehículo
     apiFetch('/TipoVehiculo').then(tipos => {
         const select = document.getElementById('tipoVehiculoId');
         select.innerHTML = tipos.map(t => `<option value="${t.id}">${t.nombre}</option>`).join('');
@@ -200,7 +188,6 @@ function showNewPedidoModal() {
         const destinoLat = parseFloat(destino[0]);
         const destinoLng = parseFloat(destino[1]);
 
-        // Crear ubicaciones
         const ubicOrigen = await apiFetch('/Ubicacion', { method: 'POST', body: JSON.stringify({ latitud: origenLat, longitud: origenLng }) });
         const ubicDestino = await apiFetch('/Ubicacion', { method: 'POST', body: JSON.stringify({ latitud: destinoLat, longitud: destinoLng }) });
 
@@ -227,7 +214,8 @@ function showNewPedidoModal() {
             if (nuevoPedido && nuevoPedido.id) {
                 alert('Pedido creado exitosamente');
                 modal.remove();
-                renderClienteDashboard(); // refrescar
+                await renderClienteDashboard(); // esperar a que refresque
+                attachClienteEvents(); // volver a adjuntar eventos
             } else {
                 alert('Error al crear pedido');
             }
@@ -290,7 +278,8 @@ async function cancelPedido(pedidoId) {
     try {
         await apiFetch(`/Pedido/${pedidoId}`, { method: 'DELETE' });
         alert('Pedido cancelado');
-        renderClienteDashboard();
+        await renderClienteDashboard();
+        attachClienteEvents();
     } catch (err) {
         alert('Error al cancelar pedido');
     }

@@ -1,6 +1,24 @@
 ﻿// js/components/landing.js
 export function renderLanding() {
     return `
+    <!-- Modal de Login -->
+<div id="loginModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-modal" id="closeLoginModal">&times;</span>
+        <h3>Iniciar Sesión</h3>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Correo electrónico</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn-primary">Ingresar</button>
+        </form>
+    </div>
+</div>
   <!-- Modal de Registro -->
 <div id="registerModal" class="modal" style="display:none;">
     <div class="modal-content modal-large">
@@ -27,8 +45,9 @@ export function renderLanding() {
                 <input type="email" id="regEmail" required>
             </div>
             <div class="form-group">
-                <label>Teléfono * (8 dígitos)</label>
-                <input type="tel" id="regTelefono" pattern="\d{8}" required>
+                 <label>Teléfono * (8 dígitos)</label>
+                <input type="text" id="regTelefono" maxlength="8" placeholder="71234567" required>
+                <small>Ejemplo: 71234567 (solo números, 8 dígitos)</small>
             </div>
             <div class="form-group">
                 <label>Contraseña *</label>

@@ -971,7 +971,9 @@ tr:hover td {
 .modal-content {
     background: var(--blanco);
     border-radius: 20px;
-    padding: 2rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.5rem;
     max-width: 500px;
     width: 90%;
     position: relative;

@@ -24,7 +24,7 @@ namespace WebAppCourierTrack.Controllers
 
         // GET: api/Conductor (solo administrador)
         [HttpGet]
-        [Authorize(Roles = "ADMINISTRADOR")]
+        //[Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<List<ConductorDTO>>> Get()
         {
             var conductores = await _context.Conductores

@@ -45,18 +45,23 @@ namespace WebAppCourierTrack.Controllers
             if (cliente == null)
                 return NotFound("Cliente no encontrado.");
 
-            // Validar permiso: administrador o el propio cliente
             if (rol != "ADMINISTRADOR" && cliente.UsuarioId != userId)
                 return Forbid("No tienes permiso para ver este cliente.");
 
             return Ok(_mapper.Map<ClienteDTO>(cliente));
         }
 
-        // POST: api/Cliente (solo administrador)
+        // POST: api/Cliente (permite auto-registro)
         [HttpPost]
-        [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<ClienteDTO>> Post(ClienteCreaDTO clienteCreaDTO)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Validar que el usuario autenticado sea el mismo del cliente (o administrador)
+            if (rol != "ADMINISTRADOR" && clienteCreaDTO.UsuarioId != userId)
+                return Forbid("No puedes crear un cliente para otro usuario.");
+
             // Documento repetido
             if (await _context.Clientes.AnyAsync(c => c.NroDocumento == clienteCreaDTO.NroDocumento))
                 return BadRequest("Ya existe un cliente con ese número de documento.");
@@ -99,7 +104,6 @@ namespace WebAppCourierTrack.Controllers
             if (clienteExistente == null)
                 return NotFound("El cliente no existe.");
 
-            // Verificar que el usuario no esté asignado a otro cliente (excepto el actual)
             if (await _context.Clientes.AnyAsync(c => c.UsuarioId == clienteCreaDTO.UsuarioId && c.Id != id))
                 return BadRequest("Ese usuario ya pertenece a otro cliente.");
 
@@ -117,7 +121,6 @@ namespace WebAppCourierTrack.Controllers
             if (cliente == null)
                 return NotFound("El cliente no existe.");
 
-            // Verificar si tiene pedidos asociados
             if (await _context.Pedidos.AnyAsync(p => p.ClienteId == id))
                 return BadRequest("No se puede eliminar el cliente porque tiene pedidos asociados.");
 
