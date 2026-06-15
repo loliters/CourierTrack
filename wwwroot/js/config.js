@@ -1,5 +1,2 @@
-﻿export const API_BASE = '/api';
-export const ENDPOINTS = {
-    LOGIN: `${API_BASE}/Auth/login`,
-    USUARIOS: `${API_BASE}/Usuario`,    // Endpoint protegido (requiere ADMINISTRADOR)
-};
+﻿export const API_BASE_URL = 'https://localhost:7041/api';
+//export const MAPBOX_TOKEN = 'sk';

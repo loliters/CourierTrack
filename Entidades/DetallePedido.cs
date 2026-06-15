@@ -8,7 +8,7 @@ namespace WebAppCourierTrack.Entidades
         public int Id{ get; set; }
 
         [Required(ErrorMessage = "La fecha es obligatoria")]
-        public DateTime Fecha { get; set; }
+        public DateTime Fecha { get; set; } = DateTime.UtcNow;//cambio
 
         [MaxLength(255, ErrorMessage = "La descripción no puede superar los 255 caracteres")]
         public string Descripcion { get; set; }

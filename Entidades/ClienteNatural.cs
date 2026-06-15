@@ -9,7 +9,7 @@ namespace WebAppCourierTrack.Entidades
 
         [Required(ErrorMessage = "La fecha de nacimiento es obligatoria")]
         [DataType(DataType.Date)]
-        public DateTime FechaNac { get; set; }
+        public DateTime FechaNac { get; set; } = DateTime.UtcNow;
 
         // FK Genero
         [Required(ErrorMessage = "El género es obligatorio")]

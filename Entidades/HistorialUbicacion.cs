@@ -8,7 +8,7 @@ namespace WebAppCourierTrack.Entidades
         public int Id { get; set; }
 
         [Required]
-        public DateTime Fecha { get; set; }
+        public DateTime Fecha { get; set; } = DateTime.UtcNow;
 
         public int UbicacionId { get; set; }
         public int SeguimientoId { get; set; }

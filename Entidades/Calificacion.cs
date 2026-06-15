@@ -15,7 +15,7 @@ namespace WebAppCourierTrack.Entidades
         public int Puntuacion { get; set; }
 
         [Required(ErrorMessage = "La fecha es obligatoria")]
-        public DateTime Fecha { get; set; }
+        public DateTime Fecha { get; set; } = DateTime.UtcNow;//cambio
 
 
         // Pedido calificado

@@ -15,7 +15,7 @@ namespace WebAppCourierTrack.Entidades
         public string Mensaje { get; set; } 
 
         [Required(ErrorMessage = "La fecha es obligatoria")]
-        public DateTime Fecha { get; set; }
+        public DateTime Fecha { get; set; } = DateTime.UtcNow;
 
         public bool Leida { get; set; }
         //Dependencia

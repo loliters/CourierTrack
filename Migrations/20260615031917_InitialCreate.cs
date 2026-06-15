@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace WebAppCourierTrack.Migrations
 {
     /// <inheritdoc />
-    public partial class prueba11todoNuevabd : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -208,38 +208,12 @@ namespace WebAppCourierTrack.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Latitud = table.Column<decimal>(type: "numeric(9,6)", precision: 9, scale: 6, nullable: false),
-                    Longitud = table.Column<decimal>(type: "numeric(9,6)", precision: 9, scale: 6, nullable: false)
+                    Latitud = table.Column<decimal>(type: "numeric(9,6)", nullable: false),
+                    Longitud = table.Column<decimal>(type: "numeric(9,6)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Ubicaciones", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Pagos",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Monto = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    PedidoId = table.Column<int>(type: "integer", nullable: false),
-                    MetodoPagoId = table.Column<int>(type: "integer", nullable: false),
-                    EstadoPagoId = table.Column<int>(type: "integer", nullable: false),
-                    NumeroTransaccion = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    CuentaBancaria = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Banco = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Pagos", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Pagos_MetodoPagos_MetodoPagoId",
-                        column: x => x.MetodoPagoId,
-                        principalTable: "MetodoPagos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -300,8 +274,8 @@ namespace WebAppCourierTrack.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PrecioKg = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
-                    PrecioKm = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    PrecioKg = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    PrecioKm = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
                     TipoVehiculoId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -351,28 +325,6 @@ namespace WebAppCourierTrack.Migrations
                         name: "FK_DireccionesOrigenes_Ubicaciones_UbicacionId",
                         column: x => x.UbicacionId,
                         principalTable: "Ubicaciones",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Calificacions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Comentario = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    Puntuacion = table.Column<int>(type: "integer", nullable: false),
-                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UsuarioId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Calificacions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Calificacions_Usuarios_UsuarioId",
-                        column: x => x.UsuarioId,
-                        principalTable: "Usuarios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -463,7 +415,7 @@ namespace WebAppCourierTrack.Migrations
                         column: x => x.UbicacionId,
                         principalTable: "Ubicaciones",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UsuariosUbicaciones_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
@@ -601,24 +553,24 @@ namespace WebAppCourierTrack.Migrations
                     CostoTotal = table.Column<decimal>(type: "numeric", nullable: false),
                     TipoVehiculoId = table.Column<int>(type: "integer", nullable: false),
                     ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CalificacionId = table.Column<int>(type: "integer", nullable: true),
+                    ConductorId = table.Column<int>(type: "integer", nullable: true),
                     DetallePedidoId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pedidos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Pedidos_Calificacions_CalificacionId",
-                        column: x => x.CalificacionId,
-                        principalTable: "Calificacions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_Pedidos_Clientes_ClienteId",
                         column: x => x.ClienteId,
                         principalTable: "Clientes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Pedidos_Conductores_ConductorId",
+                        column: x => x.ConductorId,
+                        principalTable: "Conductores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Pedidos_DetallePedidos_DetallePedidoId",
                         column: x => x.DetallePedidoId,
@@ -631,6 +583,107 @@ namespace WebAppCourierTrack.Migrations
                         principalTable: "TipoVehiculos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Calificacions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Comentario = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    Puntuacion = table.Column<int>(type: "integer", nullable: false),
+                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PedidoId = table.Column<int>(type: "integer", nullable: false),
+                    ClienteId = table.Column<int>(type: "integer", nullable: false),
+                    ConductorId = table.Column<int>(type: "integer", nullable: false),
+                    UsuarioId = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Calificacions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Calificacions_Clientes_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Clientes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Calificacions_Conductores_ConductorId",
+                        column: x => x.ConductorId,
+                        principalTable: "Conductores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Calificacions_Pedidos_PedidoId",
+                        column: x => x.PedidoId,
+                        principalTable: "Pedidos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Calificacions_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EstadosPedidos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    HoraCambio = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PedidoId = table.Column<int>(type: "integer", nullable: false),
+                    EstadoId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EstadosPedidos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EstadosPedidos_Estados_EstadoId",
+                        column: x => x.EstadoId,
+                        principalTable: "Estados",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EstadosPedidos_Pedidos_PedidoId",
+                        column: x => x.PedidoId,
+                        principalTable: "Pedidos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Pagos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Monto = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PedidoId = table.Column<int>(type: "integer", nullable: false),
+                    MetodoPagoId = table.Column<int>(type: "integer", nullable: false),
+                    EstadoPagoId = table.Column<int>(type: "integer", nullable: false),
+                    NumeroTransaccion = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    CuentaBancaria = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Banco = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Pagos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Pagos_MetodoPagos_MetodoPagoId",
+                        column: x => x.MetodoPagoId,
+                        principalTable: "MetodoPagos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Pagos_Pedidos_PedidoId",
+                        column: x => x.PedidoId,
+                        principalTable: "Pedidos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -656,6 +709,12 @@ namespace WebAppCourierTrack.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_Seguimientos_Pedidos_PedidoId",
+                        column: x => x.PedidoId,
+                        principalTable: "Pedidos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Seguimientos_Ubicaciones_UbicacionId",
                         column: x => x.UbicacionId,
                         principalTable: "Ubicaciones",
@@ -667,33 +726,6 @@ namespace WebAppCourierTrack.Migrations
                         principalTable: "Vehiculos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "EstadosPedidos",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    HoraCambio = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    PedidoId = table.Column<int>(type: "integer", nullable: false),
-                    EstadoId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EstadosPedidos", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_EstadosPedidos_Estados_EstadoId",
-                        column: x => x.EstadoId,
-                        principalTable: "Estados",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_EstadosPedidos_Pedidos_PedidoId",
-                        column: x => x.PedidoId,
-                        principalTable: "Pedidos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -841,6 +873,23 @@ namespace WebAppCourierTrack.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Notificaciones",
+                columns: new[] { "Id", "Fecha", "Leida", "Mensaje", "PedidoId", "Titulo", "UsuarioId" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2025, 1, 10, 8, 5, 0, 0, DateTimeKind.Utc), true, "Su pedido fue registrado correctamente.", 1, "Pedido Registrado", 6 },
+                    { 2, new DateTime(2025, 1, 11, 9, 5, 0, 0, DateTimeKind.Utc), false, "Se asignó un conductor a su pedido.", 2, "Pedido Asignado", 7 },
+                    { 3, new DateTime(2025, 1, 12, 10, 5, 0, 0, DateTimeKind.Utc), false, "Su pedido está siendo transportado.", 3, "En Camino", 8 },
+                    { 4, new DateTime(2025, 1, 13, 11, 5, 0, 0, DateTimeKind.Utc), true, "Su pedido fue entregado exitosamente.", 4, "Pedido Entregado", 9 },
+                    { 5, new DateTime(2025, 1, 14, 12, 5, 0, 0, DateTimeKind.Utc), false, "Tiene un pago pendiente por realizar.", 5, "Pago Pendiente", 10 },
+                    { 6, new DateTime(2025, 1, 15, 13, 5, 0, 0, DateTimeKind.Utc), true, "Su pago fue confirmado correctamente.", 6, "Pago Confirmado", 11 },
+                    { 7, new DateTime(2025, 1, 16, 14, 5, 0, 0, DateTimeKind.Utc), false, "El conductor está próximo a llegar.", 7, "Actualización", 12 },
+                    { 8, new DateTime(2025, 1, 17, 15, 5, 0, 0, DateTimeKind.Utc), false, "Se registró un retraso en la entrega.", 8, "Retraso", 6 },
+                    { 9, new DateTime(2025, 1, 18, 16, 5, 0, 0, DateTimeKind.Utc), true, "Gracias por utilizar CourierTrack.", 9, "Entrega Exitosa", 7 },
+                    { 10, new DateTime(2025, 1, 19, 17, 5, 0, 0, DateTimeKind.Utc), true, "El pedido fue completado satisfactoriamente.", 10, "Pedido Finalizado", 8 }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "Nombre" },
                 values: new object[,]
@@ -980,23 +1029,6 @@ namespace WebAppCourierTrack.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Calificacions",
-                columns: new[] { "Id", "Comentario", "Fecha", "Puntuacion", "UsuarioId" },
-                values: new object[,]
-                {
-                    { 1, "Excelente servicio", new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc), 5, 3 },
-                    { 2, "Entrega rápida y segura", new DateTime(2025, 1, 12, 0, 0, 0, 0, DateTimeKind.Utc), 4, 4 },
-                    { 3, "Buen trato del conductor", new DateTime(2025, 1, 15, 0, 0, 0, 0, DateTimeKind.Utc), 5, 5 },
-                    { 4, "El pedido llegó tarde", new DateTime(2025, 1, 18, 0, 0, 0, 0, DateTimeKind.Utc), 3, 6 },
-                    { 5, "Servicio aceptable", new DateTime(2025, 1, 20, 0, 0, 0, 0, DateTimeKind.Utc), 4, 7 },
-                    { 6, "El paquete llegó en buen estado", new DateTime(2025, 1, 22, 0, 0, 0, 0, DateTimeKind.Utc), 5, 8 },
-                    { 7, "Faltó comunicación durante la entrega", new DateTime(2025, 1, 24, 0, 0, 0, 0, DateTimeKind.Utc), 3, 9 },
-                    { 8, "Muy recomendado", new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), 5, 10 },
-                    { 9, "Buen servicio empresarial", new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Utc), 4, 11 },
-                    { 10, "Entrega satisfactoria", new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc), 4, 12 }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Clientes",
                 columns: new[] { "Id", "ExtensionCIId", "NroDocumento", "TipoClienteId", "TipoDocumentoId", "UsuarioId" },
                 values: new object[,]
@@ -1027,16 +1059,16 @@ namespace WebAppCourierTrack.Migrations
                 columns: new[] { "Id", "Descripcion", "DireccionDestinoId", "DireccionOrigenId", "Fecha" },
                 values: new object[,]
                 {
-                    { 1, "Documentos importantes", 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, "Caja mediana", 2, 2, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, "Paquete pequeño frágil", 3, 3, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 4, "Electrodoméstico", 4, 4, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 5, "Equipos de oficina", 5, 5, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 6, "Repuestos mecánicos", 1, 6, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 7, "Medicamentos", 2, 7, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 8, "Muebles pequeños", 3, 8, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 9, "Papelería", 4, 9, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 10, "Material electrónico", 5, 10, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, "Documentos importantes", 1, 1, new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 2, "Caja mediana", 2, 2, new DateTime(2025, 1, 11, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 3, "Paquete pequeño frágil", 3, 3, new DateTime(2025, 1, 12, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 4, "Electrodoméstico", 4, 4, new DateTime(2025, 1, 13, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 5, "Equipos de oficina", 5, 5, new DateTime(2025, 1, 14, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 6, "Repuestos mecánicos", 1, 6, new DateTime(2025, 1, 15, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 7, "Medicamentos", 2, 7, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 8, "Muebles pequeños", 3, 8, new DateTime(2025, 1, 17, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 9, "Papelería", 4, 9, new DateTime(2025, 1, 18, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 10, "Material electrónico", 5, 10, new DateTime(2025, 1, 19, 0, 0, 0, 0, DateTimeKind.Utc) }
                 });
 
             migrationBuilder.InsertData(
@@ -1044,9 +1076,16 @@ namespace WebAppCourierTrack.Migrations
                 columns: new[] { "Id", "EsPrincipal", "UbicacionId", "UsuarioId" },
                 values: new object[,]
                 {
-                    { 1, true, 1, 1 },
-                    { 2, true, 1, 2 },
-                    { 3, false, 2, 2 }
+                    { 1, true, 1, 3 },
+                    { 2, true, 2, 4 },
+                    { 3, true, 3, 5 },
+                    { 4, true, 4, 6 },
+                    { 5, true, 5, 7 },
+                    { 6, true, 1, 8 },
+                    { 7, true, 2, 9 },
+                    { 8, true, 3, 10 },
+                    { 9, true, 4, 11 },
+                    { 10, true, 5, 12 }
                 });
 
             migrationBuilder.InsertData(
@@ -1073,19 +1112,19 @@ namespace WebAppCourierTrack.Migrations
 
             migrationBuilder.InsertData(
                 table: "Pedidos",
-                columns: new[] { "Id", "CalificacionId", "ClienteId", "CostoTotal", "DetallePedidoId", "DistanciaKm", "Fragil", "PesoKg", "TipoVehiculoId" },
+                columns: new[] { "Id", "ClienteId", "ConductorId", "CostoTotal", "DetallePedidoId", "DistanciaKm", "Fragil", "PesoKg", "TipoVehiculoId" },
                 values: new object[,]
                 {
-                    { 1, 1, 1, 45.00m, 1, 8.50m, true, 2.50m, 1 },
-                    { 2, 2, 2, 70.00m, 2, 12.00m, false, 5.20m, 2 },
-                    { 3, 3, 3, 30.00m, 3, 4.50m, true, 1.80m, 1 },
-                    { 4, 4, 4, 120.00m, 4, 20.00m, false, 8.00m, 3 },
-                    { 5, 5, 5, 80.00m, 5, 15.50m, true, 3.40m, 2 },
-                    { 6, null, 6, 95.00m, 6, 18.00m, false, 6.80m, 3 },
-                    { 7, 7, 7, 22.00m, 7, 3.50m, true, 0.90m, 1 },
-                    { 8, 8, 8, 175.00m, 8, 28.00m, false, 12.00m, 3 },
-                    { 9, null, 9, 58.00m, 9, 9.20m, true, 4.60m, 2 },
-                    { 10, 10, 10, 88.00m, 10, 14.00m, false, 7.30m, 2 }
+                    { 1, 1, null, 45.00m, 1, 8.50m, true, 2.50m, 1 },
+                    { 2, 2, null, 70.00m, 2, 12.00m, false, 5.20m, 2 },
+                    { 3, 3, null, 30.00m, 3, 4.50m, true, 1.80m, 1 },
+                    { 4, 4, null, 120.00m, 4, 20.00m, false, 8.00m, 3 },
+                    { 5, 5, null, 95.00m, 5, 15.50m, true, 3.40m, 2 },
+                    { 6, 1, null, 110.00m, 6, 18.00m, false, 6.80m, 3 },
+                    { 7, 2, null, 22.00m, 7, 3.50m, true, 0.90m, 1 },
+                    { 8, 3, null, 175.00m, 8, 28.00m, false, 12.00m, 3 },
+                    { 9, 4, null, 58.00m, 9, 9.20m, true, 4.60m, 2 },
+                    { 10, 5, null, 88.00m, 10, 14.00m, false, 7.30m, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -1098,26 +1137,93 @@ namespace WebAppCourierTrack.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Calificacions",
+                columns: new[] { "Id", "ClienteId", "Comentario", "ConductorId", "Fecha", "PedidoId", "Puntuacion", "UsuarioId" },
+                values: new object[,]
+                {
+                    { 1, 1, "Excelente servicio", 1, new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc), 1, 5, null },
+                    { 2, 2, "Muy buen servicio", 2, new DateTime(2025, 1, 11, 0, 0, 0, 0, DateTimeKind.Utc), 2, 4, null },
+                    { 3, 3, "Servicio aceptable", 1, new DateTime(2025, 1, 12, 0, 0, 0, 0, DateTimeKind.Utc), 3, 3, null },
+                    { 4, 4, "Buen trato", 2, new DateTime(2025, 1, 13, 0, 0, 0, 0, DateTimeKind.Utc), 4, 4, null },
+                    { 5, 5, "Entrega rápida", 1, new DateTime(2025, 1, 14, 0, 0, 0, 0, DateTimeKind.Utc), 5, 5, null },
+                    { 6, 6, "Podría mejorar", 2, new DateTime(2025, 1, 15, 0, 0, 0, 0, DateTimeKind.Utc), 6, 3, null },
+                    { 7, 7, "Muy satisfecho", 1, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), 7, 5, null },
+                    { 8, 8, "Servicio regular", 2, new DateTime(2025, 1, 17, 0, 0, 0, 0, DateTimeKind.Utc), 8, 2, null },
+                    { 9, 9, "Buen conductor", 1, new DateTime(2025, 1, 18, 0, 0, 0, 0, DateTimeKind.Utc), 9, 4, null },
+                    { 10, 10, "Excelente atención", 2, new DateTime(2025, 1, 19, 0, 0, 0, 0, DateTimeKind.Utc), 10, 5, null }
+                });
+
+            migrationBuilder.InsertData(
                 table: "EstadosPedidos",
                 columns: new[] { "Id", "EstadoId", "HoraCambio", "PedidoId" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2025, 1, 10, 8, 0, 0, 0, DateTimeKind.Utc), 1 },
-                    { 2, 2, new DateTime(2025, 1, 10, 10, 30, 0, 0, DateTimeKind.Utc), 1 },
-                    { 3, 3, new DateTime(2025, 1, 10, 13, 15, 0, 0, DateTimeKind.Utc), 1 },
-                    { 4, 1, new DateTime(2025, 1, 12, 9, 0, 0, 0, DateTimeKind.Utc), 2 },
-                    { 5, 2, new DateTime(2025, 1, 12, 12, 20, 0, 0, DateTimeKind.Utc), 2 },
-                    { 6, 3, new DateTime(2025, 1, 12, 15, 45, 0, 0, DateTimeKind.Utc), 2 },
-                    { 7, 1, new DateTime(2025, 1, 15, 8, 45, 0, 0, DateTimeKind.Utc), 3 },
-                    { 8, 4, new DateTime(2025, 1, 15, 11, 15, 0, 0, DateTimeKind.Utc), 3 },
-                    { 9, 1, new DateTime(2025, 1, 18, 7, 50, 0, 0, DateTimeKind.Utc), 4 },
-                    { 10, 2, new DateTime(2025, 1, 18, 11, 40, 0, 0, DateTimeKind.Utc), 4 }
+                    { 1, 4, new DateTime(2025, 1, 10, 8, 0, 0, 0, DateTimeKind.Utc), 1 },
+                    { 2, 3, new DateTime(2025, 1, 11, 9, 0, 0, 0, DateTimeKind.Utc), 2 },
+                    { 3, 4, new DateTime(2025, 1, 12, 10, 0, 0, 0, DateTimeKind.Utc), 3 },
+                    { 4, 2, new DateTime(2025, 1, 13, 11, 0, 0, 0, DateTimeKind.Utc), 4 },
+                    { 5, 1, new DateTime(2025, 1, 14, 12, 0, 0, 0, DateTimeKind.Utc), 5 },
+                    { 6, 4, new DateTime(2025, 1, 15, 13, 0, 0, 0, DateTimeKind.Utc), 6 },
+                    { 7, 3, new DateTime(2025, 1, 16, 14, 0, 0, 0, DateTimeKind.Utc), 7 },
+                    { 8, 5, new DateTime(2025, 1, 17, 15, 0, 0, 0, DateTimeKind.Utc), 8 },
+                    { 9, 4, new DateTime(2025, 1, 18, 16, 0, 0, 0, DateTimeKind.Utc), 9 },
+                    { 10, 10, new DateTime(2025, 1, 19, 17, 0, 0, 0, DateTimeKind.Utc), 10 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Pagos",
+                columns: new[] { "Id", "Banco", "CuentaBancaria", "EstadoPagoId", "Fecha", "MetodoPagoId", "Monto", "NumeroTransaccion", "PedidoId" },
+                values: new object[,]
+                {
+                    { 1, "No Aplica", "No Aplica", 1, new DateTime(2025, 1, 10, 12, 0, 0, 0, DateTimeKind.Utc), 1, 45.00m, "No Aplica", 1 },
+                    { 2, "Banco Unión", "10000045218", 1, new DateTime(2025, 1, 11, 13, 0, 0, 0, DateTimeKind.Utc), 2, 70.00m, "TXN-85214", 2 },
+                    { 3, "No Aplica", "No Aplica", 1, new DateTime(2025, 1, 12, 14, 0, 0, 0, DateTimeKind.Utc), 1, 30.00m, "No Aplica", 3 },
+                    { 4, "Banco Nacional de Bolivia", "201-514789", 1, new DateTime(2025, 1, 13, 15, 0, 0, 0, DateTimeKind.Utc), 2, 120.00m, "TXN-96325", 4 },
+                    { 5, "No Aplica", "No Aplica", 2, new DateTime(2025, 1, 14, 16, 0, 0, 0, DateTimeKind.Utc), 1, 95.00m, "No Aplica", 5 },
+                    { 6, "Banco Mercantil Santa Cruz", "402-369852", 1, new DateTime(2025, 1, 15, 17, 0, 0, 0, DateTimeKind.Utc), 2, 110.00m, "TXN-14785", 6 },
+                    { 7, "No Aplica", "No Aplica", 1, new DateTime(2025, 1, 16, 18, 0, 0, 0, DateTimeKind.Utc), 1, 22.00m, "No Aplica", 7 },
+                    { 8, "Banco de Crédito BCP", "305-784125", 3, new DateTime(2025, 1, 17, 19, 0, 0, 0, DateTimeKind.Utc), 2, 175.00m, "TXN-36985", 8 },
+                    { 9, "No Aplica", "No Aplica", 1, new DateTime(2025, 1, 18, 20, 0, 0, 0, DateTimeKind.Utc), 1, 58.00m, "No Aplica", 9 },
+                    { 10, "Banco Económico", "501-963258", 2, new DateTime(2025, 1, 19, 21, 0, 0, 0, DateTimeKind.Utc), 2, 88.00m, "TXN-25814", 10 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Seguimientos",
+                columns: new[] { "Id", "ConductorId", "Fecha", "Observacion", "PedidoId", "UbicacionId", "VehiculoId" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(2025, 1, 10, 8, 0, 0, 0, DateTimeKind.Utc), "Pedido registrado", 1, 1, 1 },
+                    { 2, 2, new DateTime(2025, 1, 11, 9, 0, 0, 0, DateTimeKind.Utc), "Pedido asignado", 2, 2, 2 },
+                    { 3, 1, new DateTime(2025, 1, 12, 10, 0, 0, 0, DateTimeKind.Utc), "En camino", 3, 3, 1 },
+                    { 4, 2, new DateTime(2025, 1, 13, 11, 0, 0, 0, DateTimeKind.Utc), "Entregado", 4, 4, 2 },
+                    { 5, 1, new DateTime(2025, 1, 14, 12, 0, 0, 0, DateTimeKind.Utc), "Confirmado", 5, 5, 1 },
+                    { 6, 2, new DateTime(2025, 1, 15, 13, 0, 0, 0, DateTimeKind.Utc), "Pendiente de entrega", 6, 1, 2 },
+                    { 7, 1, new DateTime(2025, 1, 16, 14, 0, 0, 0, DateTimeKind.Utc), "Retraso por tráfico", 7, 2, 1 },
+                    { 8, 2, new DateTime(2025, 1, 17, 15, 0, 0, 0, DateTimeKind.Utc), "En reparto", 8, 3, 2 },
+                    { 9, 1, new DateTime(2025, 1, 18, 16, 0, 0, 0, DateTimeKind.Utc), "Llegó al destino", 9, 4, 1 },
+                    { 10, 2, new DateTime(2025, 1, 19, 17, 0, 0, 0, DateTimeKind.Utc), "Proceso finalizado", 10, 5, 2 }
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AnioVehiculos_Anio",
                 table: "AnioVehiculos",
                 column: "Anio",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Calificacions_ClienteId",
+                table: "Calificacions",
+                column: "ClienteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Calificacions_ConductorId",
+                table: "Calificacions",
+                column: "ConductorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Calificacions_PedidoId",
+                table: "Calificacions",
+                column: "PedidoId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1278,14 +1384,19 @@ namespace WebAppCourierTrack.Migrations
                 column: "MetodoPagoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Pedidos_CalificacionId",
-                table: "Pedidos",
-                column: "CalificacionId");
+                name: "IX_Pagos_PedidoId",
+                table: "Pagos",
+                column: "PedidoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pedidos_ClienteId",
                 table: "Pedidos",
                 column: "ClienteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Pedidos_ConductorId",
+                table: "Pedidos",
+                column: "ConductorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pedidos_DetallePedidoId",
@@ -1307,6 +1418,11 @@ namespace WebAppCourierTrack.Migrations
                 name: "IX_Seguimientos_ConductorId",
                 table: "Seguimientos",
                 column: "ConductorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Seguimientos_PedidoId",
+                table: "Seguimientos",
+                column: "PedidoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Seguimientos_UbicacionId",
@@ -1353,10 +1469,9 @@ namespace WebAppCourierTrack.Migrations
                 column: "UbicacionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UsuariosUbicaciones_UsuarioId_EsPrincipal",
+                name: "IX_UsuariosUbicaciones_UsuarioId",
                 table: "UsuariosUbicaciones",
-                columns: new[] { "UsuarioId", "EsPrincipal" },
-                unique: true);
+                column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vehiculos_AnioVehiculoId",
@@ -1388,6 +1503,9 @@ namespace WebAppCourierTrack.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Calificacions");
+
             migrationBuilder.DropTable(
                 name: "ClientesJuridicos");
 
@@ -1422,16 +1540,16 @@ namespace WebAppCourierTrack.Migrations
                 name: "Estados");
 
             migrationBuilder.DropTable(
-                name: "Pedidos");
-
-            migrationBuilder.DropTable(
                 name: "Seguimientos");
 
             migrationBuilder.DropTable(
                 name: "MetodoPagos");
 
             migrationBuilder.DropTable(
-                name: "Calificacions");
+                name: "Pedidos");
+
+            migrationBuilder.DropTable(
+                name: "Vehiculos");
 
             migrationBuilder.DropTable(
                 name: "Clientes");
@@ -1440,7 +1558,16 @@ namespace WebAppCourierTrack.Migrations
                 name: "DetallePedidos");
 
             migrationBuilder.DropTable(
-                name: "Vehiculos");
+                name: "AnioVehiculos");
+
+            migrationBuilder.DropTable(
+                name: "Colores");
+
+            migrationBuilder.DropTable(
+                name: "Conductores");
+
+            migrationBuilder.DropTable(
+                name: "Modelos");
 
             migrationBuilder.DropTable(
                 name: "ExtensionCI");
@@ -1458,21 +1585,6 @@ namespace WebAppCourierTrack.Migrations
                 name: "DireccionesOrigenes");
 
             migrationBuilder.DropTable(
-                name: "AnioVehiculos");
-
-            migrationBuilder.DropTable(
-                name: "Colores");
-
-            migrationBuilder.DropTable(
-                name: "Conductores");
-
-            migrationBuilder.DropTable(
-                name: "Modelos");
-
-            migrationBuilder.DropTable(
-                name: "Ubicaciones");
-
-            migrationBuilder.DropTable(
                 name: "TipoLicencias");
 
             migrationBuilder.DropTable(
@@ -1483,6 +1595,9 @@ namespace WebAppCourierTrack.Migrations
 
             migrationBuilder.DropTable(
                 name: "TipoVehiculos");
+
+            migrationBuilder.DropTable(
+                name: "Ubicaciones");
 
             migrationBuilder.DropTable(
                 name: "Roles");

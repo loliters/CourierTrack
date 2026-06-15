@@ -14,7 +14,7 @@ namespace WebAppCourierTrack.Entidades
         public decimal Monto { get; set; }
 
         [Required(ErrorMessage = "La fecha es obligatoria")]
-        public DateTime Fecha { get; set; }
+        public DateTime Fecha { get; set; } = DateTime.UtcNow;
 
         public int PedidoId { get; set; }
         public int MetodoPagoId { get; set; }

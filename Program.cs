@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using WebAppCourierTrack;
-using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,18 +88,22 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// *** Migración de contraseñas a BCrypt (síncrona, se ejecuta solo una vez) ***
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
-    var usuarios = await context.Usuarios.ToListAsync();
+    var usuarios = context.Usuarios.ToList(); // síncrono
+    bool cambio = false;
     foreach (var u in usuarios)
     {
         if (!string.IsNullOrEmpty(u.Password) && !u.Password.StartsWith("$2"))
         {
             u.Password = BCrypt.Net.BCrypt.HashPassword(u.Password);
+            cambio = true;
         }
     }
-    await context.SaveChangesAsync();
+    if (cambio)
+        context.SaveChanges(); // síncrono
 }
 
 if (app.Environment.IsDevelopment())
@@ -109,13 +112,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//Servir archivos estáticos desde wwwroot
-app.UseDefaultFiles();     // 
-app.UseStaticFiles();      // wwwroot
+// Servir archivos estáticos desde wwwroot
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 app.UseCors("NuevaPolitica");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();

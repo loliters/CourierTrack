@@ -8,7 +8,7 @@ namespace WebAppCourierTrack.Entidades
         public int Id { get; set; }
 
         [Required(ErrorMessage = "La hora de cambio es obligatoria")]
-        public DateTime HoraCambio { get; set; }
+        public DateTime HoraCambio { get; set; } = DateTime.UtcNow;//cambio
 
         // FK Pedido
         public int PedidoId { get; set; }

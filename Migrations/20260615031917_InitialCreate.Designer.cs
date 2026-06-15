@@ -12,8 +12,8 @@ using WebAppCourierTrack;
 namespace WebAppCourierTrack.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20260610184636_AparicionPedido")]
-    partial class AparicionPedido
+    [Migration("20260615031917_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -124,20 +124,36 @@ namespace WebAppCourierTrack.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Comentario")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<int>("ConductorId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PedidoId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Puntuacion")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UsuarioId")
+                    b.Property<int?>("UsuarioId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("ConductorId");
+
+                    b.HasIndex("PedidoId")
+                        .IsUnique();
 
                     b.HasIndex("UsuarioId");
 
@@ -147,82 +163,102 @@ namespace WebAppCourierTrack.Migrations
                         new
                         {
                             Id = 1,
+                            ClienteId = 1,
                             Comentario = "Excelente servicio",
+                            ConductorId = 1,
                             Fecha = new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 5,
-                            UsuarioId = 3
+                            PedidoId = 1,
+                            Puntuacion = 5
                         },
                         new
                         {
                             Id = 2,
-                            Comentario = "Entrega rápida y segura",
-                            Fecha = new DateTime(2025, 1, 12, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 4,
-                            UsuarioId = 4
+                            ClienteId = 2,
+                            Comentario = "Muy buen servicio",
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 11, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 2,
+                            Puntuacion = 4
                         },
                         new
                         {
                             Id = 3,
-                            Comentario = "Buen trato del conductor",
-                            Fecha = new DateTime(2025, 1, 15, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 5,
-                            UsuarioId = 5
+                            ClienteId = 3,
+                            Comentario = "Servicio aceptable",
+                            ConductorId = 1,
+                            Fecha = new DateTime(2025, 1, 12, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 3,
+                            Puntuacion = 3
                         },
                         new
                         {
                             Id = 4,
-                            Comentario = "El pedido llegó tarde",
-                            Fecha = new DateTime(2025, 1, 18, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 3,
-                            UsuarioId = 6
+                            ClienteId = 4,
+                            Comentario = "Buen trato",
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 13, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 4,
+                            Puntuacion = 4
                         },
                         new
                         {
                             Id = 5,
-                            Comentario = "Servicio aceptable",
-                            Fecha = new DateTime(2025, 1, 20, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 4,
-                            UsuarioId = 7
+                            ClienteId = 5,
+                            Comentario = "Entrega rápida",
+                            ConductorId = 1,
+                            Fecha = new DateTime(2025, 1, 14, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 5,
+                            Puntuacion = 5
                         },
                         new
                         {
                             Id = 6,
-                            Comentario = "El paquete llegó en buen estado",
-                            Fecha = new DateTime(2025, 1, 22, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 5,
-                            UsuarioId = 8
+                            ClienteId = 6,
+                            Comentario = "Podría mejorar",
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 6,
+                            Puntuacion = 3
                         },
                         new
                         {
                             Id = 7,
-                            Comentario = "Faltó comunicación durante la entrega",
-                            Fecha = new DateTime(2025, 1, 24, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 3,
-                            UsuarioId = 9
+                            ClienteId = 7,
+                            Comentario = "Muy satisfecho",
+                            ConductorId = 1,
+                            Fecha = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 7,
+                            Puntuacion = 5
                         },
                         new
                         {
                             Id = 8,
-                            Comentario = "Muy recomendado",
-                            Fecha = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 5,
-                            UsuarioId = 10
+                            ClienteId = 8,
+                            Comentario = "Servicio regular",
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 17, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 8,
+                            Puntuacion = 2
                         },
                         new
                         {
                             Id = 9,
-                            Comentario = "Buen servicio empresarial",
-                            Fecha = new DateTime(2025, 1, 28, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 4,
-                            UsuarioId = 11
+                            ClienteId = 9,
+                            Comentario = "Buen conductor",
+                            ConductorId = 1,
+                            Fecha = new DateTime(2025, 1, 18, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 9,
+                            Puntuacion = 4
                         },
                         new
                         {
                             Id = 10,
-                            Comentario = "Entrega satisfactoria",
-                            Fecha = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Puntuacion = 4,
-                            UsuarioId = 12
+                            ClienteId = 10,
+                            Comentario = "Excelente atención",
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 19, 0, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 10,
+                            Puntuacion = 5
                         });
                 });
 
@@ -628,7 +664,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Documentos importantes",
                             DireccionDestinoId = 1,
                             DireccionOrigenId = 1,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6073)
+                            Fecha = new DateTime(2025, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -636,7 +672,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Caja mediana",
                             DireccionDestinoId = 2,
                             DireccionOrigenId = 2,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6075)
+                            Fecha = new DateTime(2025, 1, 11, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -644,7 +680,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Paquete pequeño frágil",
                             DireccionDestinoId = 3,
                             DireccionOrigenId = 3,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6076)
+                            Fecha = new DateTime(2025, 1, 12, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -652,7 +688,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Electrodoméstico",
                             DireccionDestinoId = 4,
                             DireccionOrigenId = 4,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6077)
+                            Fecha = new DateTime(2025, 1, 13, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -660,7 +696,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Equipos de oficina",
                             DireccionDestinoId = 5,
                             DireccionOrigenId = 5,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6079)
+                            Fecha = new DateTime(2025, 1, 14, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -668,7 +704,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Repuestos mecánicos",
                             DireccionDestinoId = 1,
                             DireccionOrigenId = 6,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6080)
+                            Fecha = new DateTime(2025, 1, 15, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -676,7 +712,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Medicamentos",
                             DireccionDestinoId = 2,
                             DireccionOrigenId = 7,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6081)
+                            Fecha = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -684,7 +720,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Muebles pequeños",
                             DireccionDestinoId = 3,
                             DireccionOrigenId = 8,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6082)
+                            Fecha = new DateTime(2025, 1, 17, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -692,7 +728,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Papelería",
                             DireccionDestinoId = 4,
                             DireccionOrigenId = 9,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6083)
+                            Fecha = new DateTime(2025, 1, 18, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -700,7 +736,7 @@ namespace WebAppCourierTrack.Migrations
                             Descripcion = "Material electrónico",
                             DireccionDestinoId = 5,
                             DireccionOrigenId = 10,
-                            Fecha = new DateTime(2026, 6, 10, 18, 46, 35, 738, DateTimeKind.Utc).AddTicks(6084)
+                            Fecha = new DateTime(2025, 1, 19, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
                 });
 
@@ -976,6 +1012,78 @@ namespace WebAppCourierTrack.Migrations
                     b.HasIndex("PedidoId");
 
                     b.ToTable("EstadosPedidos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            EstadoId = 4,
+                            HoraCambio = new DateTime(2025, 1, 10, 8, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            EstadoId = 3,
+                            HoraCambio = new DateTime(2025, 1, 11, 9, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            EstadoId = 4,
+                            HoraCambio = new DateTime(2025, 1, 12, 10, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            EstadoId = 2,
+                            HoraCambio = new DateTime(2025, 1, 13, 11, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            EstadoId = 1,
+                            HoraCambio = new DateTime(2025, 1, 14, 12, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            EstadoId = 4,
+                            HoraCambio = new DateTime(2025, 1, 15, 13, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 6
+                        },
+                        new
+                        {
+                            Id = 7,
+                            EstadoId = 3,
+                            HoraCambio = new DateTime(2025, 1, 16, 14, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 7
+                        },
+                        new
+                        {
+                            Id = 8,
+                            EstadoId = 5,
+                            HoraCambio = new DateTime(2025, 1, 17, 15, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 8
+                        },
+                        new
+                        {
+                            Id = 9,
+                            EstadoId = 4,
+                            HoraCambio = new DateTime(2025, 1, 18, 16, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 9
+                        },
+                        new
+                        {
+                            Id = 10,
+                            EstadoId = 10,
+                            HoraCambio = new DateTime(2025, 1, 19, 17, 0, 0, 0, DateTimeKind.Utc),
+                            PedidoId = 10
+                        });
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.ExtensionCI", b =>
@@ -1316,6 +1424,108 @@ namespace WebAppCourierTrack.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Notificaciones");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Fecha = new DateTime(2025, 1, 10, 8, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = true,
+                            Mensaje = "Su pedido fue registrado correctamente.",
+                            PedidoId = 1,
+                            Titulo = "Pedido Registrado",
+                            UsuarioId = 6
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Fecha = new DateTime(2025, 1, 11, 9, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = false,
+                            Mensaje = "Se asignó un conductor a su pedido.",
+                            PedidoId = 2,
+                            Titulo = "Pedido Asignado",
+                            UsuarioId = 7
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Fecha = new DateTime(2025, 1, 12, 10, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = false,
+                            Mensaje = "Su pedido está siendo transportado.",
+                            PedidoId = 3,
+                            Titulo = "En Camino",
+                            UsuarioId = 8
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Fecha = new DateTime(2025, 1, 13, 11, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = true,
+                            Mensaje = "Su pedido fue entregado exitosamente.",
+                            PedidoId = 4,
+                            Titulo = "Pedido Entregado",
+                            UsuarioId = 9
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Fecha = new DateTime(2025, 1, 14, 12, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = false,
+                            Mensaje = "Tiene un pago pendiente por realizar.",
+                            PedidoId = 5,
+                            Titulo = "Pago Pendiente",
+                            UsuarioId = 10
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Fecha = new DateTime(2025, 1, 15, 13, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = true,
+                            Mensaje = "Su pago fue confirmado correctamente.",
+                            PedidoId = 6,
+                            Titulo = "Pago Confirmado",
+                            UsuarioId = 11
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Fecha = new DateTime(2025, 1, 16, 14, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = false,
+                            Mensaje = "El conductor está próximo a llegar.",
+                            PedidoId = 7,
+                            Titulo = "Actualización",
+                            UsuarioId = 12
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Fecha = new DateTime(2025, 1, 17, 15, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = false,
+                            Mensaje = "Se registró un retraso en la entrega.",
+                            PedidoId = 8,
+                            Titulo = "Retraso",
+                            UsuarioId = 6
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Fecha = new DateTime(2025, 1, 18, 16, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = true,
+                            Mensaje = "Gracias por utilizar CourierTrack.",
+                            PedidoId = 9,
+                            Titulo = "Entrega Exitosa",
+                            UsuarioId = 7
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Fecha = new DateTime(2025, 1, 19, 17, 5, 0, 0, DateTimeKind.Utc),
+                            Leida = true,
+                            Mensaje = "El pedido fue completado satisfactoriamente.",
+                            PedidoId = 10,
+                            Titulo = "Pedido Finalizado",
+                            UsuarioId = 8
+                        });
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Pago", b =>
@@ -1360,7 +1570,131 @@ namespace WebAppCourierTrack.Migrations
 
                     b.HasIndex("MetodoPagoId");
 
+                    b.HasIndex("PedidoId");
+
                     b.ToTable("Pagos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Banco = "No Aplica",
+                            CuentaBancaria = "No Aplica",
+                            EstadoPagoId = 1,
+                            Fecha = new DateTime(2025, 1, 10, 12, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 1,
+                            Monto = 45.00m,
+                            NumeroTransaccion = "No Aplica",
+                            PedidoId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Banco = "Banco Unión",
+                            CuentaBancaria = "10000045218",
+                            EstadoPagoId = 1,
+                            Fecha = new DateTime(2025, 1, 11, 13, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 2,
+                            Monto = 70.00m,
+                            NumeroTransaccion = "TXN-85214",
+                            PedidoId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Banco = "No Aplica",
+                            CuentaBancaria = "No Aplica",
+                            EstadoPagoId = 1,
+                            Fecha = new DateTime(2025, 1, 12, 14, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 1,
+                            Monto = 30.00m,
+                            NumeroTransaccion = "No Aplica",
+                            PedidoId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Banco = "Banco Nacional de Bolivia",
+                            CuentaBancaria = "201-514789",
+                            EstadoPagoId = 1,
+                            Fecha = new DateTime(2025, 1, 13, 15, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 2,
+                            Monto = 120.00m,
+                            NumeroTransaccion = "TXN-96325",
+                            PedidoId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Banco = "No Aplica",
+                            CuentaBancaria = "No Aplica",
+                            EstadoPagoId = 2,
+                            Fecha = new DateTime(2025, 1, 14, 16, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 1,
+                            Monto = 95.00m,
+                            NumeroTransaccion = "No Aplica",
+                            PedidoId = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Banco = "Banco Mercantil Santa Cruz",
+                            CuentaBancaria = "402-369852",
+                            EstadoPagoId = 1,
+                            Fecha = new DateTime(2025, 1, 15, 17, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 2,
+                            Monto = 110.00m,
+                            NumeroTransaccion = "TXN-14785",
+                            PedidoId = 6
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Banco = "No Aplica",
+                            CuentaBancaria = "No Aplica",
+                            EstadoPagoId = 1,
+                            Fecha = new DateTime(2025, 1, 16, 18, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 1,
+                            Monto = 22.00m,
+                            NumeroTransaccion = "No Aplica",
+                            PedidoId = 7
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Banco = "Banco de Crédito BCP",
+                            CuentaBancaria = "305-784125",
+                            EstadoPagoId = 3,
+                            Fecha = new DateTime(2025, 1, 17, 19, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 2,
+                            Monto = 175.00m,
+                            NumeroTransaccion = "TXN-36985",
+                            PedidoId = 8
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Banco = "No Aplica",
+                            CuentaBancaria = "No Aplica",
+                            EstadoPagoId = 1,
+                            Fecha = new DateTime(2025, 1, 18, 20, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 1,
+                            Monto = 58.00m,
+                            NumeroTransaccion = "No Aplica",
+                            PedidoId = 9
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Banco = "Banco Económico",
+                            CuentaBancaria = "501-963258",
+                            EstadoPagoId = 2,
+                            Fecha = new DateTime(2025, 1, 19, 21, 0, 0, 0, DateTimeKind.Utc),
+                            MetodoPagoId = 2,
+                            Monto = 88.00m,
+                            NumeroTransaccion = "TXN-25814",
+                            PedidoId = 10
+                        });
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Pedido", b =>
@@ -1371,10 +1705,10 @@ namespace WebAppCourierTrack.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CalificacionId")
+                    b.Property<int>("ClienteId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ClienteId")
+                    b.Property<int?>("ConductorId")
                         .HasColumnType("integer");
 
                     b.Property<decimal>("CostoTotal")
@@ -1397,9 +1731,9 @@ namespace WebAppCourierTrack.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CalificacionId");
-
                     b.HasIndex("ClienteId");
+
+                    b.HasIndex("ConductorId");
 
                     b.HasIndex("DetallePedidoId");
 
@@ -1590,11 +1924,115 @@ namespace WebAppCourierTrack.Migrations
 
                     b.HasIndex("ConductorId");
 
+                    b.HasIndex("PedidoId");
+
                     b.HasIndex("UbicacionId");
 
                     b.HasIndex("VehiculoId");
 
                     b.ToTable("Seguimientos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConductorId = 1,
+                            Fecha = new DateTime(2025, 1, 10, 8, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "Pedido registrado",
+                            PedidoId = 1,
+                            UbicacionId = 1,
+                            VehiculoId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 11, 9, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "Pedido asignado",
+                            PedidoId = 2,
+                            UbicacionId = 2,
+                            VehiculoId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ConductorId = 1,
+                            Fecha = new DateTime(2025, 1, 12, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "En camino",
+                            PedidoId = 3,
+                            UbicacionId = 3,
+                            VehiculoId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 13, 11, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "Entregado",
+                            PedidoId = 4,
+                            UbicacionId = 4,
+                            VehiculoId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ConductorId = 1,
+                            Fecha = new DateTime(2025, 1, 14, 12, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "Confirmado",
+                            PedidoId = 5,
+                            UbicacionId = 5,
+                            VehiculoId = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 15, 13, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "Pendiente de entrega",
+                            PedidoId = 6,
+                            UbicacionId = 1,
+                            VehiculoId = 2
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ConductorId = 1,
+                            Fecha = new DateTime(2025, 1, 16, 14, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "Retraso por tráfico",
+                            PedidoId = 7,
+                            UbicacionId = 2,
+                            VehiculoId = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 17, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "En reparto",
+                            PedidoId = 8,
+                            UbicacionId = 3,
+                            VehiculoId = 2
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ConductorId = 1,
+                            Fecha = new DateTime(2025, 1, 18, 16, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "Llegó al destino",
+                            PedidoId = 9,
+                            UbicacionId = 4,
+                            VehiculoId = 1
+                        },
+                        new
+                        {
+                            Id = 10,
+                            ConductorId = 2,
+                            Fecha = new DateTime(2025, 1, 19, 17, 0, 0, 0, DateTimeKind.Utc),
+                            Observacion = "Proceso finalizado",
+                            PedidoId = 10,
+                            UbicacionId = 5,
+                            VehiculoId = 2
+                        });
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Tarifa", b =>
@@ -2091,6 +2529,78 @@ namespace WebAppCourierTrack.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("UsuariosUbicaciones");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            EsPrincipal = true,
+                            UbicacionId = 1,
+                            UsuarioId = 3
+                        },
+                        new
+                        {
+                            Id = 2,
+                            EsPrincipal = true,
+                            UbicacionId = 2,
+                            UsuarioId = 4
+                        },
+                        new
+                        {
+                            Id = 3,
+                            EsPrincipal = true,
+                            UbicacionId = 3,
+                            UsuarioId = 5
+                        },
+                        new
+                        {
+                            Id = 4,
+                            EsPrincipal = true,
+                            UbicacionId = 4,
+                            UsuarioId = 6
+                        },
+                        new
+                        {
+                            Id = 5,
+                            EsPrincipal = true,
+                            UbicacionId = 5,
+                            UsuarioId = 7
+                        },
+                        new
+                        {
+                            Id = 6,
+                            EsPrincipal = true,
+                            UbicacionId = 1,
+                            UsuarioId = 8
+                        },
+                        new
+                        {
+                            Id = 7,
+                            EsPrincipal = true,
+                            UbicacionId = 2,
+                            UsuarioId = 9
+                        },
+                        new
+                        {
+                            Id = 8,
+                            EsPrincipal = true,
+                            UbicacionId = 3,
+                            UsuarioId = 10
+                        },
+                        new
+                        {
+                            Id = 9,
+                            EsPrincipal = true,
+                            UbicacionId = 4,
+                            UsuarioId = 11
+                        },
+                        new
+                        {
+                            Id = 10,
+                            EsPrincipal = true,
+                            UbicacionId = 5,
+                            UsuarioId = 12
+                        });
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Vehiculo", b =>
@@ -2156,13 +2666,33 @@ namespace WebAppCourierTrack.Migrations
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Calificacion", b =>
                 {
-                    b.HasOne("WebAppCourierTrack.Entidades.Usuario", "Usuario")
+                    b.HasOne("WebAppCourierTrack.Entidades.Cliente", "Cliente")
                         .WithMany("Calificaciones")
-                        .HasForeignKey("UsuarioId")
+                        .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Usuario");
+                    b.HasOne("WebAppCourierTrack.Entidades.Conductor", "Conductor")
+                        .WithMany("Calificaciones")
+                        .HasForeignKey("ConductorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebAppCourierTrack.Entidades.Pedido", "Pedido")
+                        .WithOne("Calificacion")
+                        .HasForeignKey("WebAppCourierTrack.Entidades.Calificacion", "PedidoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebAppCourierTrack.Entidades.Usuario", null)
+                        .WithMany("Calificaciones")
+                        .HasForeignKey("UsuarioId");
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Conductor");
+
+                    b.Navigation("Pedido");
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Cliente", b =>
@@ -2237,13 +2767,15 @@ namespace WebAppCourierTrack.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WebAppCourierTrack.Entidades.Usuario", null)
+                    b.HasOne("WebAppCourierTrack.Entidades.Usuario", "Usuario")
                         .WithOne("Conductor")
                         .HasForeignKey("WebAppCourierTrack.Entidades.Conductor", "UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("TipoLicencia");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.DetallePedido", b =>
@@ -2352,21 +2884,29 @@ namespace WebAppCourierTrack.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WebAppCourierTrack.Entidades.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("MetodoPago");
+
+                    b.Navigation("Pedido");
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Pedido", b =>
                 {
-                    b.HasOne("WebAppCourierTrack.Entidades.Calificacion", "Calificacion")
-                        .WithMany("Pedidos")
-                        .HasForeignKey("CalificacionId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("WebAppCourierTrack.Entidades.Cliente", "Cliente")
                         .WithMany("Pedidos")
                         .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("WebAppCourierTrack.Entidades.Conductor", "Conductor")
+                        .WithMany("Pedidos")
+                        .HasForeignKey("ConductorId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("WebAppCourierTrack.Entidades.DetallePedido", "DetallePedido")
                         .WithMany("Pedidos")
@@ -2380,9 +2920,9 @@ namespace WebAppCourierTrack.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Calificacion");
-
                     b.Navigation("Cliente");
+
+                    b.Navigation("Conductor");
 
                     b.Navigation("DetallePedido");
 
@@ -2395,6 +2935,12 @@ namespace WebAppCourierTrack.Migrations
                         .WithMany()
                         .HasForeignKey("ConductorId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebAppCourierTrack.Entidades.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WebAppCourierTrack.Entidades.Ubicacion", "Ubicacion")
@@ -2410,6 +2956,8 @@ namespace WebAppCourierTrack.Migrations
                         .IsRequired();
 
                     b.Navigation("Conductor");
+
+                    b.Navigation("Pedido");
 
                     b.Navigation("Ubicacion");
 
@@ -2441,13 +2989,13 @@ namespace WebAppCourierTrack.Migrations
             modelBuilder.Entity("WebAppCourierTrack.Entidades.UsuarioUbicacion", b =>
                 {
                     b.HasOne("WebAppCourierTrack.Entidades.Ubicacion", "Ubicacion")
-                        .WithMany()
+                        .WithMany("UsuariosUbicaciones")
                         .HasForeignKey("UbicacionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WebAppCourierTrack.Entidades.Usuario", "Usuario")
-                        .WithMany()
+                        .WithMany("UsuariosUbicaciones")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2492,18 +3040,22 @@ namespace WebAppCourierTrack.Migrations
                     b.Navigation("Modelo");
                 });
 
-            modelBuilder.Entity("WebAppCourierTrack.Entidades.Calificacion", b =>
-                {
-                    b.Navigation("Pedidos");
-                });
-
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Cliente", b =>
                 {
+                    b.Navigation("Calificaciones");
+
                     b.Navigation("ClienteJuridico")
                         .IsRequired();
 
                     b.Navigation("ClienteNatural")
                         .IsRequired();
+
+                    b.Navigation("Pedidos");
+                });
+
+            modelBuilder.Entity("WebAppCourierTrack.Entidades.Conductor", b =>
+                {
+                    b.Navigation("Calificaciones");
 
                     b.Navigation("Pedidos");
                 });
@@ -2540,6 +3092,8 @@ namespace WebAppCourierTrack.Migrations
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Pedido", b =>
                 {
+                    b.Navigation("Calificacion");
+
                     b.Navigation("EstadosPedidos");
                 });
 
@@ -2568,6 +3122,8 @@ namespace WebAppCourierTrack.Migrations
                     b.Navigation("DireccionesDestinos");
 
                     b.Navigation("DireccionesOrigenes");
+
+                    b.Navigation("UsuariosUbicaciones");
                 });
 
             modelBuilder.Entity("WebAppCourierTrack.Entidades.Usuario", b =>
@@ -2579,6 +3135,8 @@ namespace WebAppCourierTrack.Migrations
 
                     b.Navigation("Conductor")
                         .IsRequired();
+
+                    b.Navigation("UsuariosUbicaciones");
                 });
 #pragma warning restore 612, 618
         }
