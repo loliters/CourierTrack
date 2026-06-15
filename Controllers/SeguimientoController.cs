@@ -32,11 +32,11 @@ namespace WebAppCourierTrack.Controllers
             IQueryable<Seguimiento> query = _context.Seguimientos
                 .Include(s => s.Pedido)
                     .ThenInclude(p => p.Cliente)
+                        .ThenInclude(c => c.Usuario)
                 .Include(s => s.Conductor)
                     .ThenInclude(c => c.Usuario)
                 .Include(s => s.Vehiculo)
                 .Include(s => s.Ubicacion);
-
             if (rol == "ADMINISTRADOR")
             {
                 // Admin ve todos

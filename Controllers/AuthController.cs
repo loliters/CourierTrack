@@ -29,9 +29,14 @@ namespace WebAppCourierTrack.Controllers
         public async Task<ActionResult<LoginResponseDTO>> Login(LoginDTO loginDTO)
         {
             // Buscar usuario por correo
+            /*var usuario = await _context.Usuarios
+                .Include(u => u.Rol)
+                .FirstOrDefaultAsync(u => u.Correo == loginDTO.Correo);*/
             var usuario = await _context.Usuarios
                 .Include(u => u.Rol)
-                .FirstOrDefaultAsync(u => u.Correo == loginDTO.Correo);
+                .FirstOrDefaultAsync(
+                    u => u.Correo == loginDTO.Correo
+            );
 
             if (usuario == null)
                 return Unauthorized("Credenciales inválidas.");

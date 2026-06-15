@@ -392,7 +392,7 @@ async function renderApp() {
         showLanding();
         return;
     }
-    const rol = user.rolNombre;
+    const rol = user.rolNombre?.toUpperCase();
     switch (rol) {
         case 'ADMINISTRADOR':
             await showAdminDashboard(user);

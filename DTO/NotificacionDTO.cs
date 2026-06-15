@@ -9,5 +9,9 @@ namespace WebAppCourierTrack.DTO
         public string Mensaje { get; set; }
         public DateTime Fecha { get; set; }
         public bool Leida { get; set; }
+
+        //
+        public int UsuarioId { get; set; }
+        public int PedidoId { get; set; }
     }
 }

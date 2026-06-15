@@ -23,7 +23,7 @@ namespace WebAppCourierTrack.Controllers
         }
 
         // GET: api/Cliente (solo administrador)
-        [HttpGet]
+        /*[HttpGet]
         [Authorize(Roles = "ADMINISTRADOR")]
         public async Task<ActionResult<List<ClienteDTO>>> Get()
         {
@@ -32,8 +32,35 @@ namespace WebAppCourierTrack.Controllers
                 .Include(c => c.TipoCliente)
                 .ToListAsync();
             return Ok(_mapper.Map<List<ClienteDTO>>(clientes));
-        }
+        }*/
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult<List<ClienteDTO>>> Get()
+        {
+            var userId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"
+            );
 
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (rol == "ADMINISTRADOR")
+            {
+                var clientes = await _context.Clientes
+                    .Include(c => c.Usuario)
+                    .Include(c => c.TipoCliente)
+                    .ToListAsync();
+
+                return Ok(_mapper.Map<List<ClienteDTO>>(clientes));
+            }
+
+            var cliente = await _context.Clientes
+                .Include(c => c.Usuario)
+                .Include(c => c.TipoCliente)
+                .Where(c => c.UsuarioId == userId)
+                .ToListAsync();
+
+            return Ok(_mapper.Map<List<ClienteDTO>>(cliente));
+        }
         // GET: api/Cliente/5
         [HttpGet("{id:int}", Name = "ObtenerCliente")]
         public async Task<ActionResult<ClienteDTO>> Get(int id)

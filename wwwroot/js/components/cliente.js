@@ -7,7 +7,7 @@ let currentMap = null;
 let currentTrackingMap = null;
 
 // Obtener o crear cliente asociado al usuario (ya lo tienes bien)
-async function getOrCreateCliente(userId) {
+/*async function getOrCreateCliente(userId) {
     try {
         const clientes = await apiFetch('/Cliente');
         let cliente = clientes.find(c => c.usuarioId === userId);
@@ -25,6 +25,26 @@ async function getOrCreateCliente(userId) {
             cliente = nuevoCliente;
         }
         return cliente?.id;
+    } catch (e) {
+        console.error('Error getOrCreateCliente:', e);
+        return null;
+    }
+}*/
+async function getOrCreateCliente(userId) {
+    try {
+        const clientes = await apiFetch('/Cliente');
+
+        console.log("Clientes:", clientes);
+        console.log("User ID:", userId);
+
+        const cliente = clientes.find(
+            c => Number(c.usuarioId) === Number(userId)
+        );
+
+        console.log("Cliente encontrado:", cliente);
+
+        return cliente?.id || null;
+
     } catch (e) {
         console.error('Error getOrCreateCliente:', e);
         return null;

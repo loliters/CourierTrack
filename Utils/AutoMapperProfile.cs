@@ -4,6 +4,7 @@ using WebAppCourierTrack.Entidades;
 
 namespace WebAppCourierTrack.Utils
 {
+
     public class AutoMapperProfile : Profile
     {
         public AutoMapperProfile()
@@ -15,7 +16,7 @@ namespace WebAppCourierTrack.Utils
             CreateMap<Rol, RolDTO>();
             //GENERO
             CreateMap<GeneroCreaDTO, Genero>();
-            CreateMap<Genero,  GeneroDTO>();
+            CreateMap<Genero, GeneroDTO>();
             //tipo cliente
             CreateMap<TipoClienteCreaDTO, TipoCliente>();
 
@@ -78,9 +79,15 @@ namespace WebAppCourierTrack.Utils
             //cliente
             CreateMap<ClienteCreaDTO, Cliente>();
             CreateMap<Cliente, ClienteDTO>()
-                .ForMember(dest => dest.UsuarioNombre, opt => opt.MapFrom(src => $"{src.Usuario.Nombre} {src.Usuario.ApPat}"))
-                .ForMember(dest => dest.UsuarioCorreo, opt => opt.MapFrom(src => src.Usuario.Correo))
-                .ForMember(dest => dest.TipoClienteNombre, opt => opt.MapFrom(src => src.TipoCliente.Nombre));
+    .ForMember(dest => dest.UsuarioId,
+        opt => opt.MapFrom(src => src.UsuarioId))
+    .ForMember(dest => dest.UsuarioNombre,
+        opt => opt.MapFrom(src =>
+            $"{src.Usuario.Nombre} {src.Usuario.ApPat}"))
+    .ForMember(dest => dest.UsuarioCorreo,
+        opt => opt.MapFrom(src => src.Usuario.Correo))
+    .ForMember(dest => dest.TipoClienteNombre,
+        opt => opt.MapFrom(src => src.TipoCliente.Nombre));
             //cliente natural
             CreateMap<ClienteNaturalCreaDTO, ClienteNatural>();
             CreateMap<ClienteNatural, ClienteNaturalDTO>();
@@ -92,10 +99,10 @@ namespace WebAppCourierTrack.Utils
             CreateMap<DireccionOrigen, DireccionOrigenDTO>();
             //direccion destino
             CreateMap<DireccionDestinoCreaDTO, DireccionDestino>();
-            CreateMap<DireccionDestino,  DireccionDestinoDTO>();
+            CreateMap<DireccionDestino, DireccionDestinoDTO>();
             //calificacion
             CreateMap<CalificacionCreaDTO, Calificacion>();
-            CreateMap<Calificacion,  CalificacionDTO>();
+            CreateMap<Calificacion, CalificacionDTO>();
             //pedido
             // pedido
             CreateMap<PedidoCreaDTO, Pedido>()
@@ -158,11 +165,13 @@ namespace WebAppCourierTrack.Utils
             CreateMap<HistorialUbicacion, HistorialUbicacionDTO>();
             //Notificacion
             CreateMap<NotificacionCreaDTO, Notificacion>();
-            CreateMap<Notificacion, NotificacionDTO>();
+            CreateMap<Notificacion, NotificacionDTO>()
+                .ForMember(dest => dest.UsuarioId, opt => opt.MapFrom(src => src.UsuarioId))
+                .ForMember(dest => dest.PedidoId, opt => opt.MapFrom(src => src.PedidoId));
 
         }
         //estado -> pedido mostrar
-        private List<PedidoDTO> MapFromEstadoPedidoToPedidoDTO(Estado estado,EstadoConPedidosDTO estadoDTO)
+        private List<PedidoDTO> MapFromEstadoPedidoToPedidoDTO(Estado estado, EstadoConPedidosDTO estadoDTO)
         {
             List<PedidoDTO> response = new List<PedidoDTO>();
 
@@ -184,7 +193,7 @@ namespace WebAppCourierTrack.Utils
             return response;
         }
         //pedido -> estados mostrar
-        private List<EstadoDTO> MapFromEstadoPedidoToEstadoDTO( Pedido pedido, PedidoConEstadosDTO pedidoDTO)
+        private List<EstadoDTO> MapFromEstadoPedidoToEstadoDTO(Pedido pedido, PedidoConEstadosDTO pedidoDTO)
         {
             List<EstadoDTO> response = new List<EstadoDTO>();
 

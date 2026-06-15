@@ -68,7 +68,10 @@ namespace WebAppCourierTrack.Controllers
                 return Forbid("No puedes registrar como conductor a otro usuario.");
 
             // Verificar que el usuario exista
-            var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId);
+            //var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId);
+            var usuario = await _context.Usuarios
+                .Include(u => u.Rol)
+                .FirstOrDefaultAsync(u => u.Id == dto.UsuarioId);
             if (usuario == null)
                 return BadRequest($"El usuario con Id {dto.UsuarioId} no existe.");
 
